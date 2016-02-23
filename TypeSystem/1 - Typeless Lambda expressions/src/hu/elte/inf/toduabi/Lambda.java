@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class Lambda {
 	private LexParser lexParser;
+	private SyntaxParser syntaxParser;
 	
 	public Lambda() {		
 		this.lexParser = new LexParser();
@@ -15,11 +16,14 @@ public class Lambda {
 		this.lexParser.addItem(new LexParserItem('.', SharedConstants.DOT));
 		this.lexParser.addItem(new LexParserItem('(', SharedConstants.OPEN));
 		this.lexParser.addItem(new LexParserItem(')', SharedConstants.CLOSE));
+		
+		this.syntaxParser = new SyntaxParser();
 	}
 	
 	public String getNormalForm(String input, int maxIterations) throws LexParserException, SyntaxParserException {
 		ArrayList<LexParserItem> tokens = this.lexParser.parse(input);
-		return tokens.toString();
+		SyntaxTree syntaxTree = this.syntaxParser.parse(tokens);
+		return syntaxTree.toString();
 	}
 	public String getNormalForm(String input) throws LexParserException, SyntaxParserException {
 		return this.getNormalForm(input, 0);
