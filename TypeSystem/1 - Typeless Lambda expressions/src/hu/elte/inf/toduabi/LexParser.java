@@ -8,13 +8,14 @@ public class LexParser {
 	
 	public LexParser() {
 		this.items = new ArrayList<LexParserItem>();
-	}
-	public boolean addItem(LexParserItem item) {
-		if (item == null || this.items.contains(item)) {
-			return false;
+		this.items.add(new LexParserItem('\\', SharedConstants.LAMBDA));
+		for (int i = 'a'; i <= 'z'; i++) {
+			this.items.add(new LexParserItem(Character.toChars(i)[0], SharedConstants.VARIABLE));
 		}
-		this.items.add(item);
-		return true;
+		this.items.add(new LexParserItem(' ', SharedConstants.APPLICATION));
+		this.items.add(new LexParserItem('.', SharedConstants.DOT));
+		this.items.add(new LexParserItem('(', SharedConstants.OPEN));
+		this.items.add(new LexParserItem(')', SharedConstants.CLOSE));
 	}
 	
 	public ArrayList<LexParserItem> parse(String input) throws LexParserException {

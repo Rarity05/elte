@@ -7,16 +7,7 @@ public class Lambda {
 	private SyntaxParser syntaxParser;
 	
 	public Lambda() {		
-		this.lexParser = new LexParser();
-		this.lexParser.addItem(new LexParserItem('\\', SharedConstants.LAMBDA));
-		for (int i = 'a'; i <= 'z'; i++) {
-			this.lexParser.addItem(new LexParserItem(Character.toChars(i)[0], SharedConstants.VARIABLE));
-		}
-		this.lexParser.addItem(new LexParserItem(' ', SharedConstants.APPLICATION));
-		this.lexParser.addItem(new LexParserItem('.', SharedConstants.DOT));
-		this.lexParser.addItem(new LexParserItem('(', SharedConstants.OPEN));
-		this.lexParser.addItem(new LexParserItem(')', SharedConstants.CLOSE));
-		
+		this.lexParser = new LexParser();		
 		this.syntaxParser = new SyntaxParser();
 	}
 	
