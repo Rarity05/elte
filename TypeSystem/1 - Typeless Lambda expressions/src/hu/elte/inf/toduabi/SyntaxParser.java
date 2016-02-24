@@ -12,6 +12,7 @@ public class SyntaxParser {
 	private final String ABSTRACTION_RULE = SharedConstants.LAMBDA + SharedConstants.VARIABLE + SharedConstants.DOT + SharedConstants.EXPRESSION;
 	private final String APPLICATION_RULE = SharedConstants.EXPRESSION + SharedConstants.APPLICATION + SharedConstants.EXPRESSION;
 	private final String PARENTHESIS_RULE = SharedConstants.OPEN + SharedConstants.EXPRESSION + SharedConstants.CLOSE;
+	private final String EXPRESSION_RULE = SharedConstants.EXPRESSION;
 
 	public SyntaxTree parse(ArrayList<LexParserItem> tokens) throws SyntaxParserException {
 		this.expressions = new Stack<LambdaExpression>();
@@ -48,10 +49,20 @@ public class SyntaxParser {
 		String prefixString = "";
 		boolean reduced = false;
 		
-		while (!reduced || stack.size() != 0) {
+		while (!reduced && !stack.isEmpty()) {
 			LexParserItem item = stack.pop();
 			prefix.push(item);
 			prefixString = prefixString + item.getName();
+			
+			if (prefix.equals(EXPRESSION_RULE) && !stack.isEmpty()) {
+				String previousName = stack.peek().getName();
+				if (previousName.equals(SharedConstants.DOT) && nextName.equals(SharedConstants.APPLICATION) ) {
+					stack.push(item);
+					return;
+				} else {
+					continue;
+				}
+			}
 			
 			if (prefix.equals(VARIABLE_RULE)) {
 				
