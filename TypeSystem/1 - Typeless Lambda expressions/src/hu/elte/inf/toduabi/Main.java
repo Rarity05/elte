@@ -27,7 +27,7 @@ public class Main {
 	    Lambda lambda = new Lambda();
 	    try {
 	    	System.out.println("OK: " + lambda.getNormalForm(input, maxIterations));
-	    } catch (LexParserException | SyntaxParserException e) {
+	    } catch (LexParserException | SyntaxParserException | LambdaNormalizeException e) {
 	    	System.out.println("ERROR: " + input);
 	    	System.out.println("ERROR_MSG:" + e.getMessage());
 	    }
