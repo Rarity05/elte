@@ -14,7 +14,7 @@ public class SyntaxParser {
 	private final String PARENTHESIS_RULE = SharedConstants.OPEN + SharedConstants.EXPRESSION + SharedConstants.CLOSE;
 	private final String EXPRESSION_RULE = SharedConstants.EXPRESSION;
 
-	public SyntaxTree parse(ArrayList<LexParserItem> tokens) throws SyntaxParserException {
+	public LambdaExpression parse(ArrayList<LexParserItem> tokens) throws SyntaxParserException {
 		this.expressions = new Stack<LambdaExpression>();
 		Stack<LexParserItem> stack = new Stack<LexParserItem>();
 		
@@ -34,10 +34,15 @@ public class SyntaxParser {
 				checkAndReduce(stack, nextName);
 			}
 		}
-		if (!stack.isEmpty()) {
+		
+		if (stack.size() != 1 || !stack.peek().getName().equals(SharedConstants.EXPRESSION)) {
 			throw new SyntaxParserException("eof");
 		}
-		return null;
+		if (expressions.size() != 1) {
+			throw new SyntaxParserException("internal");
+		}
+		
+		return expressions.pop();
 	}
 
 	private void checkAndReduce(Stack<LexParserItem> stack, String nextName) throws SyntaxParserException {
