@@ -6,7 +6,7 @@ import java.util.Stack;
 public class SyntaxParser {
 	
 	private final String EXT_NAME = "_";
-	private Stack<LambdaExpression> expressions;
+	private Stack<ILambdaExpression> expressions;
 	
 	private final String VARIABLE_RULE = SharedConstants.VARIABLE;
 	private final String ABSTRACTION_RULE = SharedConstants.LAMBDA + SharedConstants.VARIABLE + SharedConstants.DOT + SharedConstants.EXPRESSION;
@@ -14,8 +14,8 @@ public class SyntaxParser {
 	private final String PARENTHESIS_RULE = SharedConstants.OPEN + SharedConstants.EXPRESSION + SharedConstants.CLOSE;
 	private final String EXPRESSION_RULE = SharedConstants.EXPRESSION;
 
-	public LambdaExpression parse(ArrayList<LexParserItem> tokens) throws SyntaxParserException {
-		this.expressions = new Stack<LambdaExpression>();
+	public ILambdaExpression parse(ArrayList<LexParserItem> tokens) throws SyntaxParserException {
+		this.expressions = new Stack<ILambdaExpression>();
 		Stack<LexParserItem> stack = new Stack<LexParserItem>();
 		
 		for (int i = 0; i < tokens.size(); i++) {
@@ -90,13 +90,13 @@ public class SyntaxParser {
 				reduced = true;
 				stack.push(new LexParserItem('E', SharedConstants.EXPRESSION));
 				
-				LambdaExpression expression = expressions.pop();
-				LambdaExpression _variable = expressions.pop();
+				ILambdaExpression expression = expressions.pop();
+				ILambdaExpression _variable = expressions.pop();
 				if (!_variable.getClass().equals(LambdaVariable.class)) {
 					throw new SyntaxParserException("invalid abstraction rule found");
 				}
 				LambdaVariable variable = (LambdaVariable) _variable;
-				expressions.push(new LambdaAbstraction(variable.getVariable(), expression));
+				expressions.push(new LambdaAbstraction(variable, expression));
 				
 				checkAndReduce(stack, nextName);
 				
@@ -105,8 +105,8 @@ public class SyntaxParser {
 				reduced = true;
 				stack.push(new LexParserItem('E', SharedConstants.EXPRESSION));
 				
-				LambdaExpression expressionB = expressions.pop();
-				LambdaExpression expressionA = expressions.pop();
+				ILambdaExpression expressionB = expressions.pop();
+				ILambdaExpression expressionA = expressions.pop();
 				expressions.push(new LambdaApplication(expressionA, expressionB));
 				
 				checkAndReduce(stack, nextName);

@@ -22,7 +22,7 @@ public class Lambda {
 	
 	public String getNormalForm(String input, int maxIterations) throws LexParserException, SyntaxParserException {
 		ArrayList<LexParserItem> tokens = this.lexParser.parse(input);
-		LambdaExpression expression = this.syntaxParser.parse(tokens);
+		ILambdaExpression expression = this.syntaxParser.parse(tokens);
 		return expression.toString();
 	}
 	public String getNormalForm(String input) throws LexParserException, SyntaxParserException {

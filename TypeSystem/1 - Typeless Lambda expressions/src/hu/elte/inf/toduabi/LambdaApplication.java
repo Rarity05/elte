@@ -1,23 +1,35 @@
 package hu.elte.inf.toduabi;
 
-public class LambdaApplication extends LambdaExpression {
-	private LambdaExpression expressionA;
-	private LambdaExpression expressionB;
+import java.util.HashSet;
+
+public class LambdaApplication implements ILambdaExpression {
+	private ILambdaExpression expressionA;
+	private ILambdaExpression expressionB;
 	
-	public LambdaApplication(LambdaExpression expressionA, LambdaExpression expressionB) {
+	public LambdaApplication(ILambdaExpression expressionA, ILambdaExpression expressionB) {
 		this.expressionA = expressionA;
 		this.expressionB = expressionB;
 	}
 	
-	public LambdaExpression getExpressionA() {
+	public ILambdaExpression getExpressionA() {
 		return this.expressionA;
 	}
-	public LambdaExpression getExpressionB() {
+	public ILambdaExpression getExpressionB() {
 		return this.expressionB;
 	}
 	
 	@Override
 	public String toString() {
 		return "(" + this.expressionA.toString() + " " + this.expressionB.toString() + ")";
+	}
+
+	public HashSet<LambdaVariable> getFreeVariables() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public HashSet<LambdaVariable> getBoundedVariables() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
