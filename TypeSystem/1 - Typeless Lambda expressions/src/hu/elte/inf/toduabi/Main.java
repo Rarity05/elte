@@ -29,6 +29,7 @@ public class Main {
 	    	System.out.println("OK: " + lambda.getNormalForm(input, maxIterations));
 	    } catch (LexParserException | SyntaxParserException e) {
 	    	System.out.println("ERROR: " + input);
+	    	System.out.println("ERROR_MSG:" + e.getMessage());
 	    }
 	}
 

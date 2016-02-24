@@ -15,4 +15,9 @@ public class LambdaApplication extends LambdaExpression {
 	public LambdaExpression getExpressionB() {
 		return this.expressionB;
 	}
+	
+	@Override
+	public String toString() {
+		return "(" + this.expressionA.toString() + " " + this.expressionB.toString() + ")";
+	}
 }

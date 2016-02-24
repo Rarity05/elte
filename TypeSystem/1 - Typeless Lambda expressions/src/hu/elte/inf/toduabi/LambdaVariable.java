@@ -10,4 +10,9 @@ public class LambdaVariable extends LambdaExpression {
 	public char getVariable() {
 		return this.variable;
 	}
+	
+	@Override
+	public String toString() {
+		return Character.toString(this.variable);
+	}
 }

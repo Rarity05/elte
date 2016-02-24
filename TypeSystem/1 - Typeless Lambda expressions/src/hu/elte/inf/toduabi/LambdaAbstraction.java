@@ -12,4 +12,8 @@ public class LambdaAbstraction extends LambdaVariable {
 		return this.expression;
 	}
 
+	@Override
+	public String toString() {
+		return "(" + "\\" + super.toString() + "." + this.expression.toString() + ")";
+	}
 }
