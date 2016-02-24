@@ -103,6 +103,11 @@ public class SyntaxParser {
 				
 			} else if (prefix.equals(PARENTHESIS_RULE)) {
 				
+				reduced = true;
+				stack.push(new LexParserItem('E', SharedConstants.EXPRESSION));
+				
+				checkAndReduce(stack, nextName);
+				
 			} else {
 				 continue;
 			}
