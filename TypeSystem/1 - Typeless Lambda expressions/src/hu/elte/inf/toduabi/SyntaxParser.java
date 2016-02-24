@@ -6,9 +6,12 @@ import java.util.Stack;
 public class SyntaxParser {
 	
 	private final String EXT_NAME = "_";
+	private Stack<LambdaExpression> expressions;
 
 	public SyntaxTree parse(ArrayList<LexParserItem> tokens) throws SyntaxParserException {
+		this.expressions = new Stack<LambdaExpression>();
 		Stack<Character> stack = new Stack<Character>();
+		
 		for (int i = 0; i < tokens.size(); i++) {
 			String name = tokens.get(i).getName();
 			char token = tokens.get(i).getToken();
