@@ -45,6 +45,11 @@ public class SyntaxParser {
 			return;
 		}
 		
+		String peekName = stack.peek().getName();
+		if (peekName.equals(SharedConstants.OPEN) || peekName.equals(SharedConstants.LAMBDA) || peekName.equals(SharedConstants.DOT) || peekName.equals(SharedConstants.APPLICATION)) {
+			return;
+		}
+		
 		Stack<LexParserItem> prefix = new Stack<LexParserItem>();
 		String prefixString = "";
 		boolean reduced = false;
