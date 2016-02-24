@@ -9,9 +9,9 @@ public class Lambda {
 	public Lambda() {		
 		this.lexParser = new LexParser();
 		this.lexParser.addItem(new LexParserItem('\\', SharedConstants.LAMBDA));
-		this.lexParser.addItem(new LexParserItem('x', SharedConstants.VARIABLE));
-		this.lexParser.addItem(new LexParserItem('y', SharedConstants.VARIABLE));
-		this.lexParser.addItem(new LexParserItem('z', SharedConstants.VARIABLE));
+		for (int i = 'a'; i <= 'z'; i++) {
+			this.lexParser.addItem(new LexParserItem(Character.toChars(i)[0], SharedConstants.VARIABLE));
+		}
 		this.lexParser.addItem(new LexParserItem(' ', SharedConstants.APPLICATION));
 		this.lexParser.addItem(new LexParserItem('.', SharedConstants.DOT));
 		this.lexParser.addItem(new LexParserItem('(', SharedConstants.OPEN));
