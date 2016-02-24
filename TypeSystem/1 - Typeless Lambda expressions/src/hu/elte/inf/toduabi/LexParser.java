@@ -16,14 +16,7 @@ public class LexParser {
 		this.items.add(item);
 		return true;
 	}
-	public LexParserItem parse(char c) {
-		for (LexParserItem item : this.items) {
-			if (item.getToken() == c) {
-				return item;
-			}
-		}
-		return null;
-	}
+	
 	public ArrayList<LexParserItem> parse(String input) throws LexParserException {
 		ArrayList<LexParserItem> retVal = new ArrayList<LexParserItem>(); 
 		for (int i = 0; i < input.length(); i++) {
@@ -34,5 +27,14 @@ public class LexParser {
 			retVal.add(token);
 		}
 		return retVal;
+	}
+	
+	private LexParserItem parse(char c) {
+		for (LexParserItem item : this.items) {
+			if (item.getToken() == c) {
+				return item;
+			}
+		}
+		return null;
 	}
 }
