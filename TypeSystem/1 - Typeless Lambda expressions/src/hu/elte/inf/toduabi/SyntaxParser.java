@@ -52,9 +52,9 @@ public class SyntaxParser {
 		while (!reduced && !stack.isEmpty()) {
 			LexParserItem item = stack.pop();
 			prefix.push(item);
-			prefixString = prefixString + item.getName();
+			prefixString = item.getName() + prefixString;
 			
-			if (prefix.equals(EXPRESSION_RULE) && !stack.isEmpty()) {
+			if (prefixString.equals(EXPRESSION_RULE) && !stack.isEmpty()) {
 				String previousName = stack.peek().getName();
 				if (previousName.equals(SharedConstants.DOT) && nextName.equals(SharedConstants.APPLICATION) ) {
 					stack.push(item);
@@ -64,7 +64,7 @@ public class SyntaxParser {
 				}
 			}
 			
-			if (prefix.equals(VARIABLE_RULE)) {
+			if (prefixString.equals(VARIABLE_RULE)) {
 				
 				reduced = true;
 				expressions.push(new LambdaVariable(item.getToken()));
@@ -75,7 +75,7 @@ public class SyntaxParser {
 					checkAndReduce(stack, nextName);
 				}
 				
-			} else if (prefix.equals(ABSTRACTION_RULE)) {
+			} else if (prefixString.equals(ABSTRACTION_RULE)) {
 				
 				reduced = true;
 				stack.push(new LexParserItem('E', SharedConstants.EXPRESSION));
@@ -90,7 +90,7 @@ public class SyntaxParser {
 				
 				checkAndReduce(stack, nextName);
 				
-			} else if (prefix.equals(APPLICATION_RULE)) {
+			} else if (prefixString.equals(APPLICATION_RULE)) {
 				
 				reduced = true;
 				stack.push(new LexParserItem('E', SharedConstants.EXPRESSION));
@@ -101,7 +101,7 @@ public class SyntaxParser {
 				
 				checkAndReduce(stack, nextName);
 				
-			} else if (prefix.equals(PARENTHESIS_RULE)) {
+			} else if (prefixString.equals(PARENTHESIS_RULE)) {
 				
 				reduced = true;
 				stack.push(new LexParserItem('E', SharedConstants.EXPRESSION));
