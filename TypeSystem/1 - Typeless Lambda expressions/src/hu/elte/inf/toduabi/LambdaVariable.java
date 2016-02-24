@@ -14,6 +14,11 @@ public class LambdaVariable implements ILambdaExpression {
 	}
 	
 	@Override
+	public int hashCode(){
+        return this.variable;
+    }
+	
+	@Override
 	public boolean equals(Object _other) {
 		if (!(_other instanceof LambdaVariable)) {
 			return false;

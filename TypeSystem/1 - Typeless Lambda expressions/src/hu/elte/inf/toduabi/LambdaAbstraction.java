@@ -19,6 +19,11 @@ public class LambdaAbstraction implements ILambdaExpression {
 	}
 	
 	@Override
+	public int hashCode(){
+        return this.variable.hashCode()*3 + this.expression.hashCode()*5;
+    }
+	
+	@Override
 	public boolean equals(Object _other) {
 		if (!(_other instanceof LambdaAbstraction)) {
 			return false;

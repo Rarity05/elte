@@ -19,6 +19,11 @@ public class LambdaApplication implements ILambdaExpression {
 	}
 	
 	@Override
+	public int hashCode(){
+        return this.expressionA.hashCode()*3 + this.expressionB.hashCode()*5;
+    }
+	
+	@Override
 	public boolean equals(Object _other) {
 		if (!(_other instanceof LambdaApplication)) {
 			return false;
