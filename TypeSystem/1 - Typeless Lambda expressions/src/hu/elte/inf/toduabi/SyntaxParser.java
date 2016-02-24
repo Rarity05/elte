@@ -92,6 +92,15 @@ public class SyntaxParser {
 				
 			} else if (prefix.equals(APPLICATION_RULE)) {
 				
+				reduced = true;
+				stack.push(new LexParserItem('E', SharedConstants.EXPRESSION));
+				
+				LambdaExpression expressionB = expressions.pop();
+				LambdaExpression expressionA = expressions.pop();
+				expressions.push(new LambdaApplication(expressionA, expressionB));
+				
+				checkAndReduce(stack, nextName);
+				
 			} else if (prefix.equals(PARENTHESIS_RULE)) {
 				
 			} else {
