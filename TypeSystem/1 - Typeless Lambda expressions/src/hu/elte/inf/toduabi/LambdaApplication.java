@@ -19,6 +19,16 @@ public class LambdaApplication implements ILambdaExpression {
 	}
 	
 	@Override
+	public boolean equals(Object _other) {
+		if (!(_other instanceof LambdaApplication)) {
+			return false;
+		}
+		
+		LambdaApplication other = (LambdaApplication) _other; 
+		return this.expressionA.equals(other.getExpressionA()) && this.expressionB.equals(other.getExpressionB());
+	}
+	
+	@Override
 	public String toString() {
 		return "(" + this.expressionA.toString() + " " + this.expressionB.toString() + ")";
 	}

@@ -14,6 +14,19 @@ public class LambdaAbstraction implements ILambdaExpression {
 	public ILambdaExpression getExpression() {
 		return this.expression;
 	}
+	public LambdaVariable getVariable() {
+		return this.variable;
+	}
+	
+	@Override
+	public boolean equals(Object _other) {
+		if (!(_other instanceof LambdaAbstraction)) {
+			return false;
+		}
+		
+		LambdaAbstraction other = (LambdaAbstraction) _other;
+		return this.variable.equals(other.getVariable()) && this.expression.equals(other.getExpression());
+	}
 
 	@Override
 	public String toString() {

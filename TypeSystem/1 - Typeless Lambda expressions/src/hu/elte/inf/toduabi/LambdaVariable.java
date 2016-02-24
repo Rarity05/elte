@@ -14,6 +14,16 @@ public class LambdaVariable implements ILambdaExpression {
 	}
 	
 	@Override
+	public boolean equals(Object _other) {
+		if (!(_other instanceof LambdaVariable)) {
+			return false;
+		}
+		
+		LambdaVariable other = (LambdaVariable) _other; 
+		return this.variable == other.getVariable();
+	}
+	
+	@Override
 	public String toString() {
 		return Character.toString(this.variable);
 	}
