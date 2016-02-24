@@ -24,12 +24,16 @@ public class LambdaApplication implements ILambdaExpression {
 	}
 
 	public HashSet<LambdaVariable> getFreeVariables() {
-		// TODO Auto-generated method stub
-		return null;
+		HashSet<LambdaVariable> retVal = new HashSet<LambdaVariable>();
+		retVal.addAll(this.expressionA.getFreeVariables());
+		retVal.addAll(this.expressionB.getFreeVariables());
+		return retVal;
 	}
 
 	public HashSet<LambdaVariable> getBoundedVariables() {
-		// TODO Auto-generated method stub
-		return null;
+		HashSet<LambdaVariable> retVal = new HashSet<LambdaVariable>();
+		retVal.addAll(this.expressionA.getBoundedVariables());
+		retVal.addAll(this.expressionB.getBoundedVariables());
+		return retVal;
 	}
 }

@@ -21,12 +21,14 @@ public class LambdaAbstraction implements ILambdaExpression {
 	}
 
 	public HashSet<LambdaVariable> getFreeVariables() {
-		// TODO Auto-generated method stub
-		return null;
+		HashSet<LambdaVariable> retVal = this.expression.getFreeVariables();
+		retVal.remove(this.variable);
+		return retVal;
 	}
 
 	public HashSet<LambdaVariable> getBoundedVariables() {
-		// TODO Auto-generated method stub
-		return null;
+		HashSet<LambdaVariable> retVal = this.expression.getBoundedVariables();
+		retVal.add(this.variable);
+		return retVal;
 	}
 }

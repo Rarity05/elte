@@ -19,12 +19,13 @@ public class LambdaVariable implements ILambdaExpression {
 	}
 
 	public HashSet<LambdaVariable> getFreeVariables() {
-		// TODO Auto-generated method stub
-		return null;
+		HashSet<LambdaVariable> retVal = new HashSet<LambdaVariable>();
+		retVal.add(this);
+		return retVal;
 	}
 
 	public HashSet<LambdaVariable> getBoundedVariables() {
-		// TODO Auto-generated method stub
-		return null;
+		HashSet<LambdaVariable> retVal = new HashSet<LambdaVariable>();
+		return retVal;
 	}
 }
