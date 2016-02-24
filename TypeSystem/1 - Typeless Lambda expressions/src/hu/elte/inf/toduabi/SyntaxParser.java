@@ -24,9 +24,7 @@ public class SyntaxParser {
 			stack.push(token);
 			if (name.equals(SharedConstants.OPEN) || name.equals(SharedConstants.LAMBDA) || name.equals(SharedConstants.DOT)) {
 				continue;
-			} else if (name.equals(SharedConstants.CLOSE)) {
-				checkAndReduce(stack);
-			} else if (name.equals(SharedConstants.VARIABLE)) {
+			} else {
 				checkAndReduce(stack, nextName);
 			}
 		}
@@ -37,11 +35,6 @@ public class SyntaxParser {
 	}
 
 	private void checkAndReduce(Stack<Character> stack, String nextName) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void checkAndReduce(Stack<Character> stack) {
 		// TODO Auto-generated method stub
 		
 	}
