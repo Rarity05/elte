@@ -13,6 +13,10 @@ public class Lambda {
 	}
 	
 	public String getNormalForm(String input, int maxIterations) throws LexParserException, SyntaxParserException, LambdaNormalizeException {
+		if (maxIterations <= 0) {
+			throw new LambdaNormalizeException("Incorrect iteration number: " + maxIterations);
+		}
+		
 		ArrayList<LexParserItem> tokens = this.lexParser.parse(input);
 		ILambdaExpression expression = this.syntaxParser.parse(tokens);
 		System.out.println("Free variables: " + expression.getFreeVariables().toString());
@@ -23,9 +27,20 @@ public class Lambda {
 			throw new LambdaNormalizeException("Not a closed expression (free): " + freeVariables.toString());
 		}
 		
+		int reduceCount = 0;
+		boolean couldReduce = true;
+		ILambdaExpression tmp = expression;
+		while (couldReduce && reduceCount++ < maxIterations) {
+			tmp = this.reduce(expression);
+			couldReduce = tmp.equals(expression);
+			expression = tmp;
+		}
+		
 		return expression.toString();
 	}
-	public String getNormalForm(String input) throws LexParserException, SyntaxParserException, LambdaNormalizeException {
-		return this.getNormalForm(input, 0);
+
+	private ILambdaExpression reduce(ILambdaExpression expression) throws LambdaNormalizeException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
