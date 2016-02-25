@@ -45,9 +45,35 @@ public class Lambda {
 			return this.reduce(nConverted);
 		}
 		
-		
-		
-		return null;
+		if (expression.getClass().equals(LambdaVariable.class)) {
+			return expression;
+		} else if (expression.getClass().equals(LambdaAbstraction.class)) {
+			LambdaAbstraction abstraction = (LambdaAbstraction) expression;
+			ILambdaExpression exp = this.reduce(abstraction.getExpression());
+			return new LambdaAbstraction(abstraction.getVariable(), exp);
+		} else if (expression.getClass().equals(LambdaApplication.class)) {
+			
+			LambdaApplication application = (LambdaApplication) expression;
+			ILambdaExpression expA = application.getExpressionA();
+			ILambdaExpression expB = application.getExpressionB();
+			
+			if (expA.getClass().equals(LambdaAbstraction.class)) {
+				if (this.hasLeftRedex(expA)) {
+					ILambdaExpression reducedExpA = this.reduce(expA);
+					return new LambdaApplication(reducedExpA, application.getExpressionB());
+				} else {
+					LambdaAbstraction abstraction = (LambdaAbstraction) expA;
+					ILambdaExpression retVal = abstraction.getExpression();
+					return retVal.Substitute(abstraction.getVariable(), expB);
+				}
+			} else {
+				ILambdaExpression reducedExpA = this.reduce(expA);
+				return new LambdaApplication(reducedExpA, application.getExpressionB());
+			}
+			
+		} else {
+			throw new LambdaNormalizeException("Uncrecognized class: " + expression.getClass());
+		}
 	}
 	
 	private boolean hasLeftRedex(ILambdaExpression expression) throws LambdaNormalizeException {
