@@ -59,6 +59,7 @@ public class LambdaAbstraction implements ILambdaExpression {
 			this.expression = this.expression.Substitute(variable, expression);
 			return this;
 		} else {
+			free.add(variable);
 			LambdaVariable newVariable = SharedConstants.getNonConflictVariable(free);
 			this.expression = this.expression.Substitute(this.variable, newVariable);
 			this.expression = this.expression.Substitute(variable, expression);

@@ -32,8 +32,11 @@ public class Lambda {
 		ILambdaExpression tmp = expression;
 		while (couldReduce && reduceCount++ < maxIterations) {
 			tmp = this.reduce(expression);
-			couldReduce = tmp.equals(expression);
+			couldReduce = !tmp.equals(expression);
 			expression = tmp;
+		}
+		if (reduceCount >= maxIterations) {
+			throw new LambdaNormalizeException("Timeout");
 		}
 		
 		return expression.toString();
