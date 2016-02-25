@@ -51,4 +51,13 @@ public class LambdaApplication implements ILambdaExpression {
 		retVal.addAll(this.expressionB.getBoundedVariables());
 		return retVal;
 	}
+
+	@Override
+	public ILambdaExpression Substitute(LambdaVariable variable, ILambdaExpression expression)
+			throws LambdaNormalizeException {
+		this.expressionA = this.expressionA.Substitute(variable, expression);
+		this.expressionB = this.expressionB.Substitute(variable, expression);
+		
+		return this;
+	}
 }

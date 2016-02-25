@@ -43,4 +43,9 @@ public class LambdaVariable implements ILambdaExpression {
 		HashSet<LambdaVariable> retVal = new HashSet<LambdaVariable>();
 		return retVal;
 	}
+
+	@Override
+	public ILambdaExpression Substitute(LambdaVariable variable, ILambdaExpression expression) {
+		return (this.equals(variable)) ? expression : this;
+	}
 }

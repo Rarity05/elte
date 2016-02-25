@@ -49,4 +49,22 @@ public class LambdaAbstraction implements ILambdaExpression {
 		retVal.add(this.variable);
 		return retVal;
 	}
+
+	@Override
+	public ILambdaExpression Substitute(LambdaVariable variable, ILambdaExpression expression) throws LambdaNormalizeException {
+		HashSet<LambdaVariable> free = expression.getFreeVariables();
+		if (this.variable.equals(variable)) {
+			return this;
+		} else if (!free.contains(this.variable)) {
+			this.expression = this.expression.Substitute(variable, expression);
+			return this;
+		} else {
+			LambdaVariable newVariable = SharedConstants.getNonConflictVariable(free);
+			this.expression = this.expression.Substitute(this.variable, newVariable);
+			this.expression = this.expression.Substitute(variable, expression);
+			this.variable = newVariable;
+			
+			return this;
+		}		
+	}
 }
