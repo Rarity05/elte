@@ -31,9 +31,7 @@ public class Lambda {
 		boolean couldReduce = true;
 		ILambdaExpression tmp = expression;
 		while (couldReduce && reduceCount++ < maxIterations) {
-			tmp = this.reduce(expression);
-			couldReduce = !tmp.equals(expression);
-			expression = tmp;
+			couldReduce = this.reduce(expression);
 		}
 		if (reduceCount >= maxIterations) {
 			throw new LambdaNormalizeException("Timeout");
@@ -42,15 +40,15 @@ public class Lambda {
 		return expression.toString();
 	}
 
-	private ILambdaExpression reduce(ILambdaExpression expression) throws LambdaNormalizeException {
-		ILambdaExpression nConverted = expression.nConversion();
-		if (!nConverted.equals(expression)) {
-			return this.reduce(nConverted);
+	private boolean reduce(ILambdaExpression expression) throws LambdaNormalizeException {
+		if (SharedConstants.nConversion(expression)) {
+			return this.reduce(expression);
 		}
 		
 		if (expression.getClass().equals(LambdaVariable.class)) {
-			return expression;
+			return false;
 		} else if (expression.getClass().equals(LambdaAbstraction.class)) {
+// --------------------- TODO COMPLETE IT:
 			LambdaAbstraction abstraction = (LambdaAbstraction) expression;
 			ILambdaExpression exp = this.reduce(abstraction.getExpression());
 			return new LambdaAbstraction(abstraction.getVariable(), exp);
