@@ -29,4 +29,27 @@ public class SharedConstants {
 		
 		return retVal;
 	}
+	public static boolean nConversion(ILambdaExpression expression) {
+		if (expression.getClass().equals(LambdaAbstraction.class)) {
+			
+			LambdaAbstraction abstraction = (LambdaAbstraction) expression;
+			ILambdaExpression exp = abstraction.getExpression();
+			
+			if (exp.getClass().equals(LambdaApplication.class)) {
+				LambdaApplication application = (LambdaApplication) exp;
+	            ILambdaExpression expA = application.getExpressionA();
+	            ILambdaExpression expB = application.getExpressionB();
+	            
+	            if (expB.getClass().equals(LambdaVariable.class)) {
+	                HashSet<LambdaVariable> free = expA.getFreeVariables();
+	                if (!free.contains(abstraction.getVariable())) {
+	                    expression = expA;
+	                    return true;
+	                }
+	            }
+			}
+		}
+		
+		return false;
+	}
 }
