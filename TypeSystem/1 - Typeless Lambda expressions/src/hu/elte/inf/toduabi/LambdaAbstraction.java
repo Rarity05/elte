@@ -67,4 +67,22 @@ public class LambdaAbstraction implements ILambdaExpression {
 			return this;
 		}		
 	}
+	
+	@Override
+	public ILambdaExpression nConversion() {
+		if (this.expression.getClass().equals(LambdaApplication.class)) {
+			LambdaApplication application = (LambdaApplication) this.expression;
+			ILambdaExpression expA = application.getExpressionA();
+			ILambdaExpression expB = application.getExpressionB();
+			
+			if (expB.getClass().equals(LambdaVariable.class)) {
+				HashSet<LambdaVariable> free = expA.getFreeVariables();
+				if (!free.contains(this.variable)) {
+					return expA;
+				}
+			}
+		}
+		
+		return this;
+	}
 }

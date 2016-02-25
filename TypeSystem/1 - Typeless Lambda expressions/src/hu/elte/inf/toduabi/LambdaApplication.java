@@ -60,4 +60,9 @@ public class LambdaApplication implements ILambdaExpression {
 		
 		return this;
 	}
+
+	@Override
+	public ILambdaExpression nConversion() {
+		return this;
+	}
 }

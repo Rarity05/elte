@@ -48,4 +48,9 @@ public class LambdaVariable implements ILambdaExpression {
 	public ILambdaExpression Substitute(LambdaVariable variable, ILambdaExpression expression) {
 		return (this.equals(variable)) ? expression : this;
 	}
+
+	@Override
+	public ILambdaExpression nConversion() {
+		return this;
+	}
 }
