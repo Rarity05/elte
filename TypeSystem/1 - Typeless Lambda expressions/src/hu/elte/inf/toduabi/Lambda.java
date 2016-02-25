@@ -40,7 +40,32 @@ public class Lambda {
 	}
 
 	private ILambdaExpression reduce(ILambdaExpression expression) throws LambdaNormalizeException {
-		// TODO Auto-generated method stub
+		ILambdaExpression nConverted = expression.nConversion();
+		if (!nConverted.equals(expression)) {
+			return this.reduce(nConverted);
+		}
+		
+		
+		
 		return null;
+	}
+	
+	private boolean hasLeftRedex(ILambdaExpression expression) throws LambdaNormalizeException {
+		if (expression.getClass().equals(LambdaVariable.class)) {
+			return false;
+		} else if (expression.getClass().equals(LambdaAbstraction.class)) {
+			return this.hasLeftRedex(((LambdaAbstraction) expression).getExpression());
+		} else if (expression.getClass().equals(LambdaApplication.class)) {
+			LambdaApplication application = (LambdaApplication) expression;
+			ILambdaExpression expA = application.getExpressionA();
+			if (expA.getClass().equals(LambdaAbstraction.class)) {
+				return true;
+			} else {
+				return this.hasLeftRedex(expA);
+			}
+		} else {
+			throw new LambdaNormalizeException("Uncrecognized class: " + expression.getClass());
+		}
+		
 	}
 }
