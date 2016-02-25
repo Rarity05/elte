@@ -29,7 +29,7 @@ public class SharedConstants {
 		
 		return retVal;
 	}
-	public static boolean nConversion(ILambdaExpression expression) {
+	public static ILambdaExpression nConversion(ILambdaExpression expression) {
 		if (expression.getClass().equals(LambdaAbstraction.class)) {
 			
 			LambdaAbstraction abstraction = (LambdaAbstraction) expression;
@@ -43,13 +43,12 @@ public class SharedConstants {
 	            if (expB.getClass().equals(LambdaVariable.class)) {
 	                HashSet<LambdaVariable> free = expA.getFreeVariables();
 	                if (!free.contains(abstraction.getVariable())) {
-	                    expression = expA;
-	                    return true;
+	                    return expA;
 	                }
 	            }
 			}
 		}
 		
-		return false;
+		return expression;
 	}
 }

@@ -55,9 +55,9 @@ public class LambdaApplication implements ILambdaExpression {
 	@Override
 	public ILambdaExpression Substitute(LambdaVariable variable, ILambdaExpression expression)
 			throws LambdaNormalizeException {
-		this.expressionA = this.expressionA.Substitute(variable, expression);
-		this.expressionB = this.expressionB.Substitute(variable, expression);
+		ILambdaExpression expA = this.expressionA.Substitute(variable, expression);
+		ILambdaExpression expB = this.expressionB.Substitute(variable, expression);
 		
-		return this;
+		return new LambdaApplication(expA, expB);
 	}
 }

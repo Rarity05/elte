@@ -28,10 +28,12 @@ public class Lambda {
 		}
 		
 		int reduceCount = 0;
+		ILambdaExpression tmp;
 		boolean couldReduce = true;
-		ILambdaExpression tmp = expression;
 		while (couldReduce && reduceCount++ < maxIterations) {
-			couldReduce = this.reduce(expression);
+			tmp = expression;
+			expression = this.reduce(expression);
+			couldReduce = !expression.equals(tmp);
 		}
 		if (reduceCount >= maxIterations) {
 			throw new LambdaNormalizeException("Timeout");
@@ -40,18 +42,19 @@ public class Lambda {
 		return expression.toString();
 	}
 
-	private boolean reduce(ILambdaExpression expression) throws LambdaNormalizeException {
-		if (SharedConstants.nConversion(expression)) {
-			return this.reduce(expression);
+	private ILambdaExpression reduce(ILambdaExpression expression) throws LambdaNormalizeException {
+		ILambdaExpression reduced = SharedConstants.nConversion(expression); 
+		if (!reduced.equals(expression)) {
+			return this.reduce(reduced);
 		}
 		
 		if (expression.getClass().equals(LambdaVariable.class)) {
-			return false;
+			return expression;
 		} else if (expression.getClass().equals(LambdaAbstraction.class)) {
-// --------------------- TODO COMPLETE IT:
 			LambdaAbstraction abstraction = (LambdaAbstraction) expression;
-			ILambdaExpression exp = this.reduce(abstraction.getExpression());
-			return new LambdaAbstraction(abstraction.getVariable(), exp);
+			LambdaVariable var = abstraction.getVariable();
+			ILambdaExpression exp = abstraction.getExpression();
+			return new LambdaAbstraction(var, this.reduce(exp));
 		} else if (expression.getClass().equals(LambdaApplication.class)) {
 			
 			LambdaApplication application = (LambdaApplication) expression;
@@ -59,17 +62,19 @@ public class Lambda {
 			ILambdaExpression expB = application.getExpressionB();
 			
 			if (expA.getClass().equals(LambdaAbstraction.class)) {
+				LambdaAbstraction abstraction = (LambdaAbstraction) expA;
+				LambdaVariable var = abstraction.getVariable();
+				ILambdaExpression exp = abstraction.getExpression();
 				if (this.hasLeftRedex(expA)) {
-					ILambdaExpression reducedExpA = this.reduce(expA);
-					return new LambdaApplication(reducedExpA, application.getExpressionB());
+					// Right?
+					return new LambdaAbstraction(var, this.reduce(exp));
 				} else {
-					LambdaAbstraction abstraction = (LambdaAbstraction) expA;
-					ILambdaExpression retVal = abstraction.getExpression();
-					return retVal.Substitute(abstraction.getVariable(), expB);
+					
+					return exp.Substitute(abstraction.getVariable(), expB);
 				}
 			} else {
-				ILambdaExpression reducedExpA = this.reduce(expA);
-				return new LambdaApplication(reducedExpA, application.getExpressionB());
+				// Right?
+				return new LambdaApplication(this.reduce(expA), expB);
 			}
 			
 		} else {
