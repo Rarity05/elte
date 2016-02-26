@@ -24,7 +24,7 @@ public class Main {
 		    in.close();
 	    }
 	    
-	    Lambda lambda = new Lambda();
+	    hu.elte.inf.toduabi.Lambda lambda = new hu.elte.inf.toduabi.Lambda();
 	    try {
 	    	System.out.println("OK: " + lambda.getNormalForm(input, maxIterations));
 	    } catch (LexParserException | SyntaxParserException | LambdaNormalizeException e) {
