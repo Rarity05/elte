@@ -16,7 +16,7 @@ public class SharedConstants {
 			throw new LambdaNormalizeException("Null set in alpha conversion");
 		}
 		
-		int i = 'a';
+		int i = 'x';
 		LambdaVariable retVal;
 		
 		do {
@@ -24,7 +24,25 @@ public class SharedConstants {
 		} while (free.contains(retVal) && ++i <= 'z');
 		
 		if (i > 'z') {
-			throw new LambdaNormalizeException("Run out of variable names");
+			return SharedConstants.getNonConflictVariableFromA(free);
+		}
+		
+		return retVal;
+	}
+	private static LambdaVariable getNonConflictVariableFromA(HashSet<LambdaVariable> free) throws LambdaNormalizeException {
+		if (free == null) {
+			throw new LambdaNormalizeException("Null set in alpha conversion");
+		}
+		
+		int i = 'a';
+		LambdaVariable retVal;
+		
+		do {
+			retVal = new LambdaVariable(Character.toChars(i)[0]);
+		} while (free.contains(retVal) && ++i <= 'x');
+		
+		if (i > 'x') {
+			throw new LambdaNormalizeException("Run out of variables.");
 		}
 		
 		return retVal;
