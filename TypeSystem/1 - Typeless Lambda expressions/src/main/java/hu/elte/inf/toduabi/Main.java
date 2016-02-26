@@ -24,11 +24,14 @@ public class Main {
 		    in.close();
 	    }
 	    
-	    hu.elte.inf.toduabi.Lambda lambda = new hu.elte.inf.toduabi.Lambda();
+	    Lambda lambda = new Lambda();
+	    String convertedInput = null;
 	    try {
-	    	System.out.println("OK: " + lambda.getNormalForm(input, maxIterations));
+	    	convertedInput = SharedConstants.convertConsoleInput(input);
+	    	System.out.println("OK: " + lambda.getNormalForm(convertedInput, maxIterations));
 	    } catch (LexParserException | SyntaxParserException | LambdaNormalizeException e) {
-	    	System.out.println("ERROR: " + input);
+	    	String errorOutput = (convertedInput == null) ? input : convertedInput;
+	    	System.out.println("ERROR: " + errorOutput);
 	    }
 	}
 
