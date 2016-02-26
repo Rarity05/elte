@@ -28,12 +28,11 @@ public class Lambda {
 		}
 		
 		int reduceCount = 0;
-		ILambdaExpression tmp;
 		boolean couldReduce = true;
 		while (couldReduce && reduceCount++ < maxIterations) {
-			tmp = expression;
-			expression = this.reduce(expression);
-			couldReduce = !expression.equals(tmp);
+			LambdaReduceWrapper wrapper = this.reduce(expression);
+			expression = wrapper.getExpression();
+			couldReduce = wrapper.couldReduce();
 		}
 		if (reduceCount >= maxIterations) {
 			throw new LambdaNormalizeException("Timeout");
@@ -42,19 +41,22 @@ public class Lambda {
 		return expression.toString();
 	}
 
-	private ILambdaExpression reduce(ILambdaExpression expression) throws LambdaNormalizeException {
+	private LambdaReduceWrapper reduce(ILambdaExpression expression) throws LambdaNormalizeException {
 		ILambdaExpression reduced = SharedConstants.nConversion(expression); 
 		if (!reduced.equals(expression)) {
 			return this.reduce(reduced);
 		}
 		
 		if (expression.getClass().equals(LambdaVariable.class)) {
-			return expression;
+			return new LambdaReduceWrapper(expression, false);
 		} else if (expression.getClass().equals(LambdaAbstraction.class)) {
 			LambdaAbstraction abstraction = (LambdaAbstraction) expression;
 			LambdaVariable var = abstraction.getVariable();
 			ILambdaExpression exp = abstraction.getExpression();
-			return new LambdaAbstraction(var, this.reduce(exp));
+			
+			LambdaReduceWrapper expReduced = this.reduce(exp);
+			LambdaAbstraction retVal = new LambdaAbstraction(var, expReduced.getExpression());
+			return new LambdaReduceWrapper(retVal, expReduced.couldReduce());
 		} else if (expression.getClass().equals(LambdaApplication.class)) {
 			
 			LambdaApplication application = (LambdaApplication) expression;
@@ -67,14 +69,19 @@ public class Lambda {
 				ILambdaExpression exp = abstraction.getExpression();
 				if (this.hasLeftRedex(expA)) {
 					// Right?
-					return new LambdaAbstraction(var, this.reduce(exp));
+					LambdaReduceWrapper expReduced = this.reduce(exp);
+					LambdaAbstraction retValAbs = new LambdaAbstraction(var, expReduced.getExpression());
+					LambdaApplication retVal = new LambdaApplication(retValAbs, expB); 
+					return new LambdaReduceWrapper(retVal, expReduced.couldReduce());
 				} else {
 					
-					return exp.Substitute(abstraction.getVariable(), expB);
+					return new LambdaReduceWrapper(exp.Substitute(var, expB), true);
 				}
 			} else {
 				// Right?
-				return new LambdaApplication(this.reduce(expA), expB);
+				LambdaReduceWrapper expReduced = this.reduce(expA);
+				LambdaApplication retVal = new LambdaApplication(expReduced.getExpression(), expB); 
+				return new LambdaReduceWrapper(retVal, expReduced.couldReduce());
 			}
 			
 		} else {
