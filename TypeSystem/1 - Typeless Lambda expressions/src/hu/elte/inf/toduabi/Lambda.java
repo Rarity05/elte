@@ -68,7 +68,6 @@ public class Lambda {
 				LambdaVariable var = abstraction.getVariable();
 				ILambdaExpression exp = abstraction.getExpression();
 				if (this.hasLeftRedex(expA)) {
-					// Right?
 					LambdaReduceWrapper expReduced = this.reduce(exp);
 					LambdaAbstraction retValAbs = new LambdaAbstraction(var, expReduced.getExpression());
 					LambdaApplication retVal = new LambdaApplication(retValAbs, expB); 
@@ -78,9 +77,13 @@ public class Lambda {
 					return new LambdaReduceWrapper(exp.Substitute(var, expB), true);
 				}
 			} else {
-				// Right?
 				LambdaReduceWrapper expReduced = this.reduce(expA);
-				LambdaApplication retVal = new LambdaApplication(expReduced.getExpression(), expB); 
+				LambdaApplication retVal = new LambdaApplication(expReduced.getExpression(), expB);
+				if (!expReduced.couldReduce()) {
+					expReduced = this.reduce(expB);
+					retVal = new LambdaApplication(expA, expReduced.getExpression());
+				}
+				 
 				return new LambdaReduceWrapper(retVal, expReduced.couldReduce());
 			}
 			
