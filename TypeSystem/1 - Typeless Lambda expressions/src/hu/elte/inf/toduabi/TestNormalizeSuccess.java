@@ -11,9 +11,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import junit.framework.Assert;
-
-@SuppressWarnings("deprecation")
 @RunWith(Parameterized.class)
 public class TestNormalizeSuccess {
 	@Parameters
@@ -44,7 +41,9 @@ public class TestNormalizeSuccess {
 	public void testCorrect() {
 		try {
 			String normalized = lambda.getNormalForm(this.input, 100);
-			Assert.assertEquals(true, normalized.equals(this.output));
+			if (!normalized.equals(this.output)) {
+				fail("Wrong normal form: " + this.input + " -> " + normalized + " , instead of: " + this.output);
+			}
 		} catch (LexParserException | SyntaxParserException | LambdaNormalizeException e) {
 			fail(e.getMessage());
 		}
