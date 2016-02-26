@@ -69,15 +69,4 @@ public class SharedConstants {
 		
 		return expression;
 	}
-	public static String convertConsoleInput(String input) throws LexParserException {
-		
-		int firstIdx = input.indexOf('"');
-		int lastIdx = input.lastIndexOf('"');
-		
-		if (firstIdx == -1 || lastIdx == firstIdx || input.indexOf('"', firstIdx + 1) != lastIdx) {
-			throw new LexParserException("Invalid input");
-		}
-		
-		return input.substring(firstIdx + 1, lastIdx);		
-	}
 }

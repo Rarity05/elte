@@ -1,11 +1,13 @@
 package hu.elte.inf.toduabi;
 
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class Main {
 
 	private static final int MAX_ITERATIONS = 100;
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		int maxIterations = MAX_ITERATIONS;
 		if (args.length == 1) {
 			try {
@@ -14,24 +16,16 @@ public class Main {
 				maxIterations = MAX_ITERATIONS;
 			}
 		}
-
+		
+	    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 	    String input;
-	    if (System.console() != null) {
-	    	input = System.console().readLine();
-	    } else {
-	    	Scanner in = new Scanner(System.in);
-		    input = in.nextLine();      
-		    in.close();
-	    }
-	    
-	    Lambda lambda = new Lambda();
-	    String convertedInput = null;
-	    try {
-	    	convertedInput = SharedConstants.convertConsoleInput(input);
-	    	System.out.println("OK: " + lambda.getNormalForm(convertedInput, maxIterations));
-	    } catch (LexParserException | SyntaxParserException | LambdaNormalizeException e) {
-	    	String errorOutput = (convertedInput == null) ? input : convertedInput;
-	    	System.out.println("ERROR: " + errorOutput);
+	    while ((input = in.readLine()) != null && input.length() != 0) {
+	    	Lambda lambda = new Lambda();
+		    try {
+		    	System.out.println("OK: " + lambda.getNormalForm(input, maxIterations));
+		    } catch (LexParserException | SyntaxParserException | LambdaNormalizeException e) {
+		    	System.out.println("ERROR: " + input);
+		    }
 	    }
 	}
 
