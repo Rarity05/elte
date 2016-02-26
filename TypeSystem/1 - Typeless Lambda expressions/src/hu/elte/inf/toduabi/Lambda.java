@@ -19,8 +19,6 @@ public class Lambda {
 		
 		ArrayList<LexParserItem> tokens = this.lexParser.parse(input);
 		ILambdaExpression expression = this.syntaxParser.parse(tokens);
-		System.out.println("Free variables: " + expression.getFreeVariables().toString());
-		System.out.println("Bounded variables: " + expression.getBoundedVariables().toString());
 		
 		HashSet<LambdaVariable> freeVariables = expression.getFreeVariables();
 		if (!freeVariables.isEmpty()) {
