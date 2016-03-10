@@ -1,0 +1,38 @@
+Image Provider:
+Provides: A bitmap of the world.
+(An implementation of this module is target specific.)
+
+Transmitter implementation:
+Provides: A caller method which receives simple direction instructions (forward, turn x degrees, etc).
+Transmits commands based on reveived instructions.
+(An implementation of this module is target specific.)
+
+Robot System:
+Required interface: Image Provider
+Required interface: Transmitter implementation
+Makes direction instructions based on bitmap.
+
+OpenCV:
+Required interface: Image provider
+Receives a bitmap of the world.
+Does shape recognition on said bitmap.
+Projects result into a matrix.
+Calculates unit - cenitmeters ratio based on robot-shape.
+Provides: Data structure containing size ratio and the matrix.
+
+Controller main-component:
+Required interface: OpenCV
+Required interface: Transmitter implementation
+Makes direction instructions based on the matrix
+
+Route Plan:
+Required interface: OpenCV
+Calculates intercepting course from robot-shape to box-shape.
+Calculates course from box-shape to target-shape.
+Provides: 
+
+Controller sub-module:
+Required interface: Route Plan
+Required interface: Transmitter implemenatation
+Transforms route based on 'box-pushing' technic.
+Invokes the transmitter implementation with direction instruction.
