@@ -79,7 +79,28 @@ parseProgram input = M.fromList (map listToTuple (wordsWhen (==';') input)) wher
     | x == '.' = [Out] ++ charToSymbol xs
     | otherwise = [SeqId x] ++ charToSymbol xs
 
---matchingBracket :: BFSequence -> Int -> Int
+matchingBracket :: BFSequence -> Int -> Int
+matchingBracket sequance index = search sequance index where
+  search :: BFSequence -> Int -> Int
+  search seq idx
+    | seq V.! idx == BrktOpen = searchRight seq (idx + 1) 1
+    | seq V.! idx == BrktClose = searchLeft seq (idx - 1) 1
+    | otherwise = 0
+  searchRight :: BFSequence -> Int -> Int -> Int
+  searchRight rightSeq rightIdx bracketCount
+    | bracketCount == 0 = rightIdx - 1
+    | rightIdx == V.length rightSeq = 0
+    | rightSeq V.! rightIdx == BrktClose = searchRight rightSeq (rightIdx + 1) (bracketCount - 1)
+    | rightSeq V.! rightIdx == BrktOpen = searchRight rightSeq (rightIdx + 1) (bracketCount + 1)
+    | otherwise = searchRight rightSeq (rightIdx + 1) bracketCount
+  searchLeft :: BFSequence -> Int -> Int -> Int
+  searchLeft leftSeq leftIdx bracketCount
+    | bracketCount == 0 = leftIdx + 1
+    | leftIdx == -1 = 0
+    | leftSeq V.! leftIdx == BrktClose = searchLeft leftSeq (leftIdx - 1) (bracketCount + 1)
+    | leftSeq V.! leftIdx == BrktOpen = searchLeft leftSeq (leftIdx - 1) (bracketCount - 1)
+    | otherwise = searchLeft leftSeq (leftIdx - 1) bracketCount
+
 --step :: ReaderT BFEnv (State BFState) ()
 --runProgram :: String -> [Int] -> [Int]
 
@@ -111,7 +132,7 @@ test_parseProgram =
   ]
 
 
-{-
+
 test_matchingBracket = testBrkt sq1 pairs1 ++ testBrkt sq2 pairs2
   where
     testBrkt sq pairs = map (\(s, e) -> matchingBracket (mkSq sq) s == e) pairs
@@ -120,7 +141,7 @@ test_matchingBracket = testBrkt sq1 pairs1 ++ testBrkt sq2 pairs2
     pairs1 = [(0, 2), (3, 5)]
     sq2    = "((())()())"
     pairs2 = zip [0..9] [9, 4, 3, 2, 1, 6, 5, 8, 7, 0]
--}
+
 
 {-
 test_step =
