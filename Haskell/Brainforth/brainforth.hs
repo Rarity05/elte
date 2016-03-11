@@ -51,8 +51,10 @@ instance BFMem Tape where
   memRight (T vec idx)
     | ((V.length vec) - 1) == idx = T { tVec = vec, tIx = 0 }
     | otherwise = T { tVec = vec, tIx = idx + 1 }
-    
---newTape :: Int -> Tape
+
+newTape :: Int -> Tape
+newTape n = T { tVec = V.replicate n 0, tIx = 0 }
+
 --parseProgram :: String -> BFEnv
 --matchingBracket :: BFSequence -> Int -> Int
 --step :: ReaderT BFEnv (State BFState) ()
