@@ -78,14 +78,14 @@ parseProgram input = M.fromList (map listToTuple (wordsWhen (==';') input)) wher
 	| x == ',' = [In] ++ charToSymbol xs
 	| x == '.' = [Out] ++ charToSymbol xs
 	| otherwise = [SeqId x] ++ charToSymbol xs
-	
+
 --matchingBracket :: BFSequence -> Int -> Int
 --step :: ReaderT BFEnv (State BFState) ()
 --runProgram :: String -> [Int] -> [Int]
 
 -- TESTS
 
-{-
+
 test_BFMem_Tape =
   [ incVal   t                  ==  t { tVec = V.fromList [ 1, 1, 2, 3] }
   , decVal   t                  ==  t { tVec = V.fromList [-1, 1, 2, 3] }
@@ -101,15 +101,15 @@ test_BFMem_Tape =
   , memRight t                  ==  t { tIx = 3 }
   ]
   where t = T { tVec = V.fromList [0, 1, 2, 3], tIx = 0 }
--}
 
-{-
+
+
 test_parseProgram =
   [ parseProgram "+-<>[],."    == M.fromList [(sq0, V.fromList [Inc, Dec, MemLeft, MemRight, BrktOpen, BrktClose, In, Out])]
   , parseProgram ":A-;A+"      == M.fromList [(sq0, V.fromList [SeqId 'A', Inc]), ('A', V.fromList [Dec])]
   , parseProgram ":A-;:B+;AB+" == M.fromList [(sq0, V.fromList [SeqId 'A', SeqId 'B', Inc]), ('A', V.fromList [Dec]), ('B', V.fromList [Inc])]
   ]
--}
+
 
 {-
 test_matchingBracket = testBrkt sq1 pairs1 ++ testBrkt sq2 pairs2
