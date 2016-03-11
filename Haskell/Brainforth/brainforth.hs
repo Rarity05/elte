@@ -65,19 +65,19 @@ parseProgram input = M.fromList (map listToTuple (wordsWhen (==';') input)) wher
   listToTuple :: [Char] -> (Char, BFSequence)
   listToTuple (x:xs)
     | x == ':' = (head xs, V.fromList (charToSymbol (tail xs)))
-	| otherwise = (sq0, V.fromList (charToSymbol (x:xs)))
+    | otherwise = (sq0, V.fromList (charToSymbol (x:xs)))
   charToSymbol :: [Char] -> [BFSymbol]
   charToSymbol [] = []
   charToSymbol (x:xs)
     | x == '+' = [Inc] ++ charToSymbol xs
-	| x == '-' = [Dec] ++ charToSymbol xs
-	| x == '<' = [MemLeft] ++ charToSymbol xs
-	| x == '>' = [MemRight] ++ charToSymbol xs
-	| x == '[' = [BrktOpen] ++ charToSymbol xs
-	| x == ']' = [BrktClose] ++ charToSymbol xs
-	| x == ',' = [In] ++ charToSymbol xs
-	| x == '.' = [Out] ++ charToSymbol xs
-	| otherwise = [SeqId x] ++ charToSymbol xs
+    | x == '-' = [Dec] ++ charToSymbol xs
+    | x == '<' = [MemLeft] ++ charToSymbol xs
+    | x == '>' = [MemRight] ++ charToSymbol xs
+    | x == '[' = [BrktOpen] ++ charToSymbol xs
+    | x == ']' = [BrktClose] ++ charToSymbol xs
+    | x == ',' = [In] ++ charToSymbol xs
+    | x == '.' = [Out] ++ charToSymbol xs
+    | otherwise = [SeqId x] ++ charToSymbol xs
 
 --matchingBracket :: BFSequence -> Int -> Int
 --step :: ReaderT BFEnv (State BFState) ()
