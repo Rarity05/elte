@@ -45,10 +45,10 @@ instance BFMem Tape where
   isNull (T vec idx) = (vec V.! idx) == 0
   getVal (T vec idx) = (vec V.! idx)
   putVal (T vec idx) val = T { tVec = (vec V.// [(idx, val)]), tIx = idx }
-  memLeft (T vec idx)
+  memRight (T vec idx)
     | 0 == idx = T { tVec = vec, tIx = ((V.length vec) - 1) }
     | otherwise = T { tVec = vec, tIx = idx - 1 }
-  memRight (T vec idx)
+  memLeft (T vec idx)
     | ((V.length vec) - 1) == idx = T { tVec = vec, tIx = 0 }
     | otherwise = T { tVec = vec, tIx = idx + 1 }
 
