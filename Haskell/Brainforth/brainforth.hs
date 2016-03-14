@@ -101,7 +101,80 @@ matchingBracket sequance index = search sequance index where
     | leftSeq V.! leftIdx == BrktOpen = searchLeft leftSeq (leftIdx - 1) (bracketCount - 1)
     | otherwise = searchLeft leftSeq (leftIdx - 1) bracketCount
 
---step :: ReaderT BFEnv (State BFState) ()
+step :: ReaderT BFEnv (State BFState) ()
+step = do
+  env <- ask
+  state <- get
+  seq <- getCurrentSequence env state
+  put $ newState seq state
+  return ()
+  where
+    getCurrentSequence :: BFEnv -> BFState -> ReaderT BFEnv (State BFState) BFSequence
+    getCurrentSequence env (S ((_,seqId):_) _ _ _) = return $ fromJust $ M.lookup seqId env
+    newState :: BFSequence -> BFState -> BFState
+    newState sequence (S sCallStk@((idx, _):xs) sMem sIn sOut)
+      | V.length sequence == idx = S {
+          sCallStk = xs,
+          sMem = sMem,
+          sIn = sIn,
+          sOut = sOut }
+      | otherwise = case sequence V.! idx of
+          Inc -> S {
+            sCallStk = modifyCallStk sCallStk,
+            sMem = incVal sMem,
+            sIn = sIn,
+            sOut = sOut }
+          Dec -> S {
+            sCallStk = modifyCallStk sCallStk,
+            sMem = decVal sMem,
+            sIn = sIn,
+            sOut = sOut }
+          MemLeft -> S {
+            sCallStk = modifyCallStk sCallStk,
+            sMem = memLeft sMem,
+            sIn = sIn,
+            sOut = sOut }
+          MemRight -> S {
+            sCallStk = modifyCallStk sCallStk,
+            sMem = memRight sMem,
+            sIn = sIn,
+            sOut = sOut }
+          BrktOpen ->
+            if isNull sMem then
+              S { sCallStk = modifyCallStkTo sCallStk ((matchingBracket sequence idx) + 1),
+                  sMem = sMem,
+                  sIn = sIn,
+                  sOut = sOut }
+            else
+              S { sCallStk = modifyCallStk sCallStk,
+                  sMem = sMem,
+                  sIn = sIn,
+                  sOut = sOut }
+          BrktClose -> S {
+            sCallStk = modifyCallStkTo sCallStk (matchingBracket sequence idx),
+            sMem = sMem,
+            sIn = sIn,
+            sOut = sOut }
+          In -> S {
+            sCallStk = modifyCallStk sCallStk,
+            sMem = putVal sMem (head sIn),
+            sIn = tail sIn,
+            sOut = sOut }
+          Out -> S {
+            sCallStk = modifyCallStk sCallStk,
+            sMem = sMem,
+            sIn = sIn,
+            sOut = [getVal sMem] ++ sOut }
+          SeqId x -> S {
+            sCallStk = [(0, x)] ++ modifyCallStk sCallStk,
+            sMem = sMem,
+            sIn = sIn,
+            sOut = sOut }
+    modifyCallStk :: [(Int, Char)] -> [(Int, Char)]
+    modifyCallStk (x:xs) = [(fst x + 1, snd x)] ++ xs
+    modifyCallStkTo :: [(Int, Char)] -> Int -> [(Int, Char)]
+    modifyCallStkTo (x:xs) idx = [(idx, snd x)] ++ xs
+
 --runProgram :: String -> [Int] -> [Int]
 
 -- TESTS
@@ -143,7 +216,7 @@ test_matchingBracket = testBrkt sq1 pairs1 ++ testBrkt sq2 pairs2
     pairs2 = zip [0..9] [9, 4, 3, 2, 1, 6, 5, 8, 7, 0]
 
 
-{-
+
 test_step =
   [ exec env1 st1{sCallStk = [(0, sq0)]} == st1{sCallStk = [(1, sq0)], sMem = incVal $ newTape 32}
   , exec env1 st1{sCallStk = [(1, sq0)]} == st1{sCallStk = [(2, sq0)], sMem = memRight $ newTape 32}
@@ -165,7 +238,7 @@ test_step =
 
     env2 = M.fromList [(sq0, V.fromList [Dec, SeqId 'A']), ('A', V.fromList [Inc])]
     st2  = S {sCallStk = [], sMem = newTape 32, sIn = [], sOut = []}
--}
+
 
 {-
 test_runProgram =
