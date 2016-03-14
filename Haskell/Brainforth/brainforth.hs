@@ -175,10 +175,13 @@ step = do
     modifyCallStkTo :: [(Int, Char)] -> Int -> [(Int, Char)]
     modifyCallStkTo (x:xs) idx = [(idx, snd x)] ++ xs
 
---runProgram :: String -> [Int] -> [Int]
+runProgram :: String -> [Int] -> [Int]
+runProgram mInput mData = rpg (parseProgram mInput) (S { sCallStk = [(0, sq0)], sMem = newTape 32, sIn = mData, sOut = [] }) where
+  rpg :: BFEnv -> BFState -> [Int]
+  rpg env state@(S [] sMem sIn sOut) = reverse sOut
+  rpg env state = rpg env (execState (runReaderT step env) state)
 
 -- TESTS
-
 
 test_BFMem_Tape =
   [ incVal   t                  ==  t { tVec = V.fromList [ 1, 1, 2, 3] }
@@ -196,15 +199,11 @@ test_BFMem_Tape =
   ]
   where t = T { tVec = V.fromList [0, 1, 2, 3], tIx = 0 }
 
-
-
 test_parseProgram =
   [ parseProgram "+-<>[],."    == M.fromList [(sq0, V.fromList [Inc, Dec, MemLeft, MemRight, BrktOpen, BrktClose, In, Out])]
   , parseProgram ":A-;A+"      == M.fromList [(sq0, V.fromList [SeqId 'A', Inc]), ('A', V.fromList [Dec])]
   , parseProgram ":A-;:B+;AB+" == M.fromList [(sq0, V.fromList [SeqId 'A', SeqId 'B', Inc]), ('A', V.fromList [Dec]), ('B', V.fromList [Inc])]
   ]
-
-
 
 test_matchingBracket = testBrkt sq1 pairs1 ++ testBrkt sq2 pairs2
   where
@@ -214,8 +213,6 @@ test_matchingBracket = testBrkt sq1 pairs1 ++ testBrkt sq2 pairs2
     pairs1 = [(0, 2), (3, 5)]
     sq2    = "((())()())"
     pairs2 = zip [0..9] [9, 4, 3, 2, 1, 6, 5, 8, 7, 0]
-
-
 
 test_step =
   [ exec env1 st1{sCallStk = [(0, sq0)]} == st1{sCallStk = [(1, sq0)], sMem = incVal $ newTape 32}
@@ -239,8 +236,6 @@ test_step =
     env2 = M.fromList [(sq0, V.fromList [Dec, SeqId 'A']), ('A', V.fromList [Inc])]
     st2  = S {sCallStk = [], sMem = newTape 32, sIn = [], sOut = []}
 
-
-{-
 test_runProgram =
   [ runProgram sqSimple    []           == [3, 4, 5, 4, 3]
   , runProgram sqLoop      []           == [4, 3, 2, 1, 0]
@@ -256,4 +251,3 @@ test_runProgram =
     sqMovePtr   = ",>,>,.<.<."
     sqSimpleSq  = ":A++;.A."
     sqAddThree  = ":A>[-<+>]<;,>,>,<A<A."
--}
