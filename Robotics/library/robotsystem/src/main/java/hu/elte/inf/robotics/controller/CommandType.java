@@ -6,8 +6,9 @@ package hu.elte.inf.robotics.controller;
  * FORWARD - the Robot has to accelerate.
  * BACKWRAEDS - the Robot has to accelerate backwards.
  * STOP - the Robot has to stop.
+ * COLLISION - indicates that a collision event must be allowed.
  *
  */
 public enum CommandType {
-	TURN, FORWARD, BACKWARDS, STOP
+	TURN, FORWARD, BACKWARDS, STOP, COLLISION
 }
