@@ -21,23 +21,18 @@ public class Main {
 	    
 	    Stream<Path> st = s.stream();	    
 	    Stream<Path> dirsOnly = st.filter(Files::isDirectory);
+	    Stream<Path> flatDirsOnly = dirsOnly.flatMap(dir -> {
+	    	try {
+	    		return Files.list(dir);
+	    	} catch (Exception e) {
+	    		return Stream.empty();
+	    	}
+	    });
 	    
 	    st = s.stream();
 	    Stream<Path> filesOnly = st.filter(Files::isRegularFile);
 	    
-	    return Stream.concat(filesOnly, createStream(dirsOnly));	    
-	    
-	    
-	    /*Iterator<Path> it = stream.iterator();
-	    while (it.hasNext()) {
-	    	Path next = it.next();
-	    	if (Files.isDirectory(next)) {
-	    		retVal = Stream.concat(retVal, createStream(Files.list(next)));
-	    	} else {
-	    		retVal = Stream.concat(retVal, Stream.of(next));
-	    	}
-	    }
-	    return retVal;*/
+	    return Stream.concat(filesOnly, createStream(flatDirsOnly));
 	}
 	
 	public static void listStream(Stream<Path> stream) {
