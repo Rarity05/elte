@@ -10,7 +10,7 @@ import hu.elte.inf.robotics.opencv.ImageData;
  * provided by the OpenCV module (ImageData).
  *
  */
-public interface IRoutePlan {
+public interface IRoutePlanner {
 	/**
 	 * getRoutePlan method
 	 * Calculates intercepting course from the Robot to a Box.
