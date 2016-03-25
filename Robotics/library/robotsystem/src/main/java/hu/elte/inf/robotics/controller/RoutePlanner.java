@@ -129,4 +129,153 @@ public class RoutePlanner implements IRoutePlanner {
 	private enum SIDE {
 		TOP, RIGHT, BOTTOM, LEFT
 	}
+	
+	/**
+	 * Helper class that manages a matrix from CollisionSideWrappers
+	 * With this class we can get CollisionSideWrappers in linear time, once the matrix is built.
+	 * @author I321357
+	 *
+	 */
+	private static class CollisionSideMatrixHandler {
+		volatile private static CollisionSideWrapper[][] matrix;
+		private static int dimension = 0;
+		
+		synchronized public static void buildMatrix(int n) {
+			if (inTreshold(dimension - n)) {
+				return;
+			}
+			dimension = n;
+			
+			// Build the 4 partial matrixes
+			CollisionSideWrapper[][] upperLeftMatrix = buildPartialMatrix(new CollisionSideWrapper(SIDE.RIGHT, SIDE.BOTTOM), new CollisionSideWrapper(SIDE.BOTTOM, SIDE.RIGHT));
+			CollisionSideWrapper[][] upperRightMatrix = mirrorMatrix(buildPartialMatrix(new CollisionSideWrapper(SIDE.BOTTOM, SIDE.LEFT), new CollisionSideWrapper(SIDE.LEFT, SIDE.BOTTOM)));
+			CollisionSideWrapper[][] lowerLeftMatrix = mirrorMatrix(buildPartialMatrix(new CollisionSideWrapper(SIDE.RIGHT, SIDE.TOP), new CollisionSideWrapper(SIDE.TOP, SIDE.RIGHT)));
+			CollisionSideWrapper[][] lowerRightMatrix = buildPartialMatrix(new CollisionSideWrapper(SIDE.TOP, SIDE.LEFT), new CollisionSideWrapper(SIDE.LEFT, SIDE.TOP));
+			
+			// Merges the partial matrixes into a big one
+			CollisionSideWrapper[][] partialBigMatrix = mergeMatrixes(upperLeftMatrix, upperRightMatrix, lowerLeftMatrix, lowerRightMatrix);
+			
+			// Fill the axis and store the complete matrix
+			matrix = fillAxis(partialBigMatrix);
+		}
+		
+		/**
+		 * getCollisionSides method
+		 * gets the CollisionSideWrapper from the matrix
+		 * @param x relative x coordinate to center
+		 * @param y relative y coordinate to center
+		 * @return CollisionSideWrapper the CollisionSideWrapper at the specified coordinate
+		 */
+		public static CollisionSideWrapper getCollisionSides(int x, int y) {
+			if (dimension == 0 || Math.abs(x) >= dimension/2 || Math.abs(y) >= dimension/2) {
+				return null;
+			}
+			
+			return matrix[x][y];
+		}
+		
+		/**
+		 * inTreshold method
+		 * building the matrix is a resource intensive task, so we don't want to perform it each time the build method gets called,
+		 * only when there is a significant change in dimension
+		 * @param x the change in dimension
+		 * @return boolean whether or not we need to rebuild the matrix
+		 */
+		private static boolean inTreshold(int x) {
+			return Math.abs(x) < 2;
+		}
+		
+		/**
+		 * Fills the empty axis fields on a matrix
+		 * @param partialBigMatrix
+		 * @return the complete matrix
+		 */
+		private static CollisionSideWrapper[][] fillAxis(CollisionSideWrapper[][] partialBigMatrix) {
+			CollisionSideWrapper[][] retVal = copyMatrix(partialBigMatrix);
+			
+			CollisionSideWrapper top = new CollisionSideWrapper(SIDE.TOP, SIDE.TOP);
+			CollisionSideWrapper right = new CollisionSideWrapper(SIDE.RIGHT, SIDE.RIGHT);
+			CollisionSideWrapper bottom = new CollisionSideWrapper(SIDE.BOTTOM, SIDE.BOTTOM);
+			CollisionSideWrapper left = new CollisionSideWrapper(SIDE.LEFT, SIDE.LEFT);
+			
+			int center = dimension/2;
+			for (int i=0; i<dimension; i++) {
+				retVal[i][center] = (i < center) ? bottom : top;
+				retVal[center][i] = (i < center) ? right : left;
+			}
+			
+			return partialBigMatrix;
+		}
+		
+		/**
+		 * Merges 4 partial matrixes into a new one, leaving the axis empty.
+		 * @param upperLeftMatrix
+		 * @param upperRightMatrix
+		 * @param lowerLeftMatrix
+		 * @param lowerRightMatrix
+		 * @return
+		 */
+		private static CollisionSideWrapper[][] mergeMatrixes(CollisionSideWrapper[][] upperLeftMatrix,
+				CollisionSideWrapper[][] upperRightMatrix, CollisionSideWrapper[][] lowerLeftMatrix,
+				CollisionSideWrapper[][] lowerRightMatrix) {
+		
+			
+			return null;
+		}
+		
+		/**
+		 * Builds a partial matrix with triangle distribution.
+		 * @param lowerMatrixElement
+		 * @param upperMatrixElement
+		 * @return the partial matrix
+		 */
+		private static CollisionSideWrapper[][] buildPartialMatrix(CollisionSideWrapper lowerMatrixElement, CollisionSideWrapper upperMatrixElement) {
+			int size = dimension/2;
+			CollisionSideWrapper[][] retVal = new CollisionSideWrapper[size][size];
+			
+			for (int i=0; i<size; i++) {
+				for (int j=0; j<size; j++) {
+					retVal[i][j] = (i <= j) ? upperMatrixElement : lowerMatrixElement;
+				}
+			}
+			
+			return retVal;
+		}
+		
+		/**
+		 * Mirrors a matrix into a new one, along the X axis (vertical)
+		 * @param matrix
+		 * @return the mirrored matrix
+		 */
+		private static CollisionSideWrapper[][] mirrorMatrix(CollisionSideWrapper[][] matrix) {
+			int size = matrix.length;
+			CollisionSideWrapper[][] retVal = new CollisionSideWrapper[size][size];
+			
+			for (int i=0; i<size; i++) {
+				for (int j=0; j<size; j++) {
+					retVal[i][j] = matrix[i][size-j];
+				}
+			}
+			
+			return retVal;
+		}
+		
+		/**
+		 * Copies a matrix into a new one 
+		 * @param matrix
+		 * @return the copied matrix
+		 */
+		private static CollisionSideWrapper[][] copyMatrix(CollisionSideWrapper[][] matrix) {
+			int size = matrix.length;
+			CollisionSideWrapper[][] retVal = new CollisionSideWrapper[size][size];
+			
+			for (int i=0; i<size; i++) {
+				for (int j=0; j<size; j++) {
+					retVal[i][j] = matrix[i][j];
+				}
+			}
+			
+			return retVal;
+		}
+	}
 }
