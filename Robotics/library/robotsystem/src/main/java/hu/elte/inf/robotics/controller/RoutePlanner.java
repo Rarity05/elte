@@ -182,23 +182,8 @@ public class RoutePlanner implements IRoutePlanner {
 				throw new IllegalArgumentException("Wrapper can't be null");
 			}
 			
-			SIDE preferred;
-			SIDE optional;
-			
-			switch (wrapper.getPreferred()) {
-				case TOP: optional = SIDE.BOTTOM; break;
-				case RIGHT: optional = SIDE.LEFT; break;
-				case BOTTOM: optional = SIDE.TOP; break;
-				case LEFT: optional = SIDE.RIGHT; break;
-				default : /* should never happen */ throw new RuntimeException("Undefined SIDE element");
-			}
-			switch (wrapper.getOptional()) {
-				case TOP: preferred = SIDE.BOTTOM; break;
-				case RIGHT: preferred = SIDE.LEFT; break;
-				case BOTTOM: preferred = SIDE.TOP; break;
-				case LEFT: preferred = SIDE.RIGHT; break;
-				default : /* should never happen */ throw new RuntimeException("Undefined SIDE element");
-			}
+			SIDE preferred = SIDE.mirror(wrapper.getOptional());
+			SIDE optional = SIDE.mirror(wrapper.getPreferred());
 			
 			return new CollisionSideWrapper(preferred, optional);
 		}
@@ -218,7 +203,17 @@ public class RoutePlanner implements IRoutePlanner {
 	 *
 	 */
 	private enum SIDE {
-		TOP, RIGHT, BOTTOM, LEFT
+		TOP, RIGHT, BOTTOM, LEFT;
+		
+		public static SIDE mirror(SIDE side) {
+			switch (side) {
+			case TOP: return BOTTOM;
+			case RIGHT: return LEFT;
+			case BOTTOM: return TOP;
+			case LEFT: return RIGHT;
+			default : /* should never happen */ throw new RuntimeException("Undefined SIDE element");
+		}
+		}
 	}
 	
 	/**
