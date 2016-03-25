@@ -97,4 +97,36 @@ public class RoutePlanner implements IRoutePlanner {
 		}
 
 	}
+	/**
+	 * Wrapper class for SIDE elements
+	 * We can approach a target from two different directions.
+	 * One is the preferred, other is the optional.
+	 *
+	 */
+	private static class CollisionSideWrapper {
+		private SIDE preferred;
+		private SIDE optional;
+		
+		public CollisionSideWrapper(SIDE preferred, SIDE optional) {
+			this.preferred = preferred;
+			this.optional = optional;
+		}
+		
+		public SIDE getPreferred() {
+			return this.preferred;
+		}
+		
+		public SIDE getOptional() {
+			return this.optional;
+		}
+	}
+	
+	/**
+	 * 
+	 * Represents a side of a surface
+	 *
+	 */
+	private enum SIDE {
+		TOP, RIGHT, BOTTOM, LEFT
+	}
 }
