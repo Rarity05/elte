@@ -36,7 +36,8 @@ public class RoutePlanner implements IRoutePlanner {
 		Point _target = imageData.getTargets().get(0);
 		Point _box = getClosestBoxToTarget(imageData.getBoxes(), _target);
 		
-		CollisionSideWrapper collisionSides = getCollisionSides(_box, _target);
+		CollisionSideWrapper collisionToTarget = getCollisionSides(_box, _target);
+		CollisionSideWrapper collisionToBox = CollisionSideWrapper.mirror(getCollisionSides(_box, _robot));
 		
 		return null;
 	}
@@ -171,6 +172,37 @@ public class RoutePlanner implements IRoutePlanner {
 			this.optional = optional;
 		}
 		
+		/**
+		 * Mirrors the SIDE elements inside the wrapper
+		 * @param wrapper
+		 * @return the mirrored wrapper
+		 */
+		public static CollisionSideWrapper mirror(CollisionSideWrapper wrapper) {
+			if (wrapper == null) {
+				throw new IllegalArgumentException("Wrapper can't be null");
+			}
+			
+			SIDE preferred;
+			SIDE optional;
+			
+			switch (wrapper.getPreferred()) {
+				case TOP: optional = SIDE.BOTTOM; break;
+				case RIGHT: optional = SIDE.LEFT; break;
+				case BOTTOM: optional = SIDE.TOP; break;
+				case LEFT: optional = SIDE.RIGHT; break;
+				default : /* should never happen */ throw new RuntimeException("Undefined SIDE element");
+			}
+			switch (wrapper.getOptional()) {
+				case TOP: preferred = SIDE.BOTTOM; break;
+				case RIGHT: preferred = SIDE.LEFT; break;
+				case BOTTOM: preferred = SIDE.TOP; break;
+				case LEFT: preferred = SIDE.RIGHT; break;
+				default : /* should never happen */ throw new RuntimeException("Undefined SIDE element");
+			}
+			
+			return new CollisionSideWrapper(preferred, optional);
+		}
+
 		public SIDE getPreferred() {
 			return this.preferred;
 		}
