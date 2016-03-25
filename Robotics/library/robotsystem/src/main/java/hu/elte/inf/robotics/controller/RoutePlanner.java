@@ -39,9 +39,40 @@ public class RoutePlanner implements IRoutePlanner {
 		CollisionSideWrapper collisionToTarget = getCollisionSides(_box, _target);
 		CollisionSideWrapper collisionToBox = CollisionSideWrapper.mirror(getCollisionSides(_box, _robot));
 		
+		CollisionSideWrapper directionsToBox = directionsFromCollisionSides(collisionToBox, collisionToTarget);
+		
 		return null;
 	}
+	
+	/**
+	 * Calculates which side to collide with the target, and which direction should the object move first. 
+	 * @param object
+	 * @param target
+	 * @return the wrapper containing the collision side as the Preferred SIDE, and the direction as the Optional SIDE
+	 */
+	private CollisionSideWrapper directionsFromCollisionSides(CollisionSideWrapper object, CollisionSideWrapper target) {
+		SIDE targetPref = target.getPreferred(), targetOpt = target.getOptional();
+		SIDE objectPref = object.getPreferred(), objectOpt = object.getOptional();
+		
+		if (targetPref.equals(objectPref) || targetOpt.equals(objectPref)) {
+			return new CollisionSideWrapper(objectPref, SIDE.mirror(objectOpt));
+		} else if (targetPref.equals(objectOpt) || targetOpt.equals(objectOpt)) {
+			return new CollisionSideWrapper(objectOpt, SIDE.mirror(objectPref));
+		} else {
+			if (objectPref.equals(objectOpt) && objectPref.equals(SIDE.mirror(targetPref))) {
+				return new CollisionSideWrapper(targetOpt, targetOpt);
+			} else {
+				return new CollisionSideWrapper(targetPref, targetPref);
+			}
+		}
+	}
 
+	/**
+	 * Calculates which side to collide with the object in order to reach the target.
+	 * @param object
+	 * @param target
+	 * @return
+	 */
 	private CollisionSideWrapper getCollisionSides(Point object, Point target) {
 		int o_x = object.getX(), o_y = object.getY();
 		int t_x = target.getX(), t_y = target.getY();
