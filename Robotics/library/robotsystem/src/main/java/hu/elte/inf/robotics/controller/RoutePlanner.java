@@ -26,15 +26,73 @@ public class RoutePlanner implements IRoutePlanner {
 	 */
 	@Override
 	public ArrayList<Command> getRoutePlan(ImageData imageData) {
-		if (imageData.getRobot() == null || imageData.getBoxes().size() == 0 || imageData.getTargets().size() == 0) {
+		if (imageData.getRobot() == null || imageData.getBoxes().isEmpty() || imageData.getTargets().isEmpty()) {
 			return new ArrayList<Command>();
 		}
+		
+		// CollisionSideMatriyHandler.buildMatrix(dimension);
 		
 		RPoint _robot = imageData.getRobot();
 		Point _target = imageData.getTargets().get(0);
 		Point _box = getClosestBoxToTarget(imageData.getBoxes(), _target);
 		
+		CollisionSideWrapper collisionSides = getCollisionSides(_box, _target);
+		
 		return null;
+	}
+
+	private CollisionSideWrapper getCollisionSides(Point object, Point target) {
+		int o_x = object.getX(), o_y = object.getY();
+		int t_x = target.getX(), t_y = target.getY();
+		
+		// Target is above
+		if (o_x  < t_x) {
+			// Target is in the same column
+			if (o_y == t_y) {
+				return new CollisionSideWrapper(SIDE.BOTTOM, SIDE.BOTTOM);
+			}
+			// Target is in the left hand side
+			else if (o_y < t_y) {
+				return (Math.abs(o_x - t_x) >= Math.abs(o_y - t_y)) ? new CollisionSideWrapper(SIDE.BOTTOM, SIDE.LEFT) : new CollisionSideWrapper(SIDE.LEFT, SIDE.BOTTOM);
+			}
+			// Target is in the right hand side
+			else {
+				return (Math.abs(o_x - t_x) >= Math.abs(o_y - t_y)) ? new CollisionSideWrapper(SIDE.BOTTOM, SIDE.RIGHT) : new CollisionSideWrapper(SIDE.RIGHT, SIDE.BOTTOM);
+			}
+		}
+		// Target is below
+		else if (o_x > t_x) {
+			// Target is in the same column
+			if (o_y == t_y) {
+				return new CollisionSideWrapper(SIDE.TOP, SIDE.TOP);
+			}
+			// Target is in the left hand side
+			else if (o_y < t_y) {
+				return (Math.abs(o_x - t_x) >= Math.abs(o_y - t_y)) ? new CollisionSideWrapper(SIDE.TOP, SIDE.LEFT) : new CollisionSideWrapper(SIDE.LEFT, SIDE.TOP);
+			}
+			// Target is in the right hand side
+			else {
+				return (Math.abs(o_x - t_x) >= Math.abs(o_y - t_y)) ? new CollisionSideWrapper(SIDE.TOP, SIDE.RIGHT) : new CollisionSideWrapper(SIDE.RIGHT, SIDE.TOP);
+			}
+		}
+		// Target is in the same row
+		else {
+			// Target is in the same column
+			if (o_y == t_y) {
+				// Not possible
+				throw new RuntimeException("Object is on Target");
+			}
+			// Target is in the left hand side
+			else if (o_y < t_y) {
+				return new CollisionSideWrapper(SIDE.RIGHT, SIDE.RIGHT);
+			}
+			// Target is in the right hand side
+			else {
+				return new CollisionSideWrapper(SIDE.LEFT, SIDE.LEFT);
+			}
+			
+		}
+		//return CollisionSideMatrixHandler.getCollisionSides(o_x - t_x, t_y - o_y);
 	}
 
 	/**
@@ -97,6 +155,7 @@ public class RoutePlanner implements IRoutePlanner {
 		}
 
 	}
+	
 	/**
 	 * Wrapper class for SIDE elements
 	 * We can approach a target from two different directions.
