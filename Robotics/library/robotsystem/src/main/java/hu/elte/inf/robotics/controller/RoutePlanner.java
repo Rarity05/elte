@@ -62,6 +62,70 @@ public class RoutePlanner implements IRoutePlanner {
 	}
 	
 	/**
+	 * Calculates a route between two Points, starting in the SIDE direction
+	 * @param start the route start Point
+	 * @param finish the route finish Point
+	 * @param startDirection the direction which to go first
+	 * @param ratio the unit/centimeters ratio
+	 * @return
+	 */
+	private RoutePlanWrapper calculateRoute(Point start, Point finish, SIDE startDirection, int ratio) {
+		ArrayList<Command> routePlan = new ArrayList<Command>();
+		int routeUnit;
+		
+		// Generate the first half of the route
+		switch (startDirection) {
+			case TOP:
+			case BOTTOM: routeUnit = Math.abs(start.getX() - finish.getX()); break;
+			case RIGHT:
+			case LEFT: routeUnit = Math.abs(start.getY() - finish.getY()); break;
+			default: /* not possible */ throw new RuntimeException("Undefined SIDE");
+		}
+		for (int i = 0; i < routeUnit; i++) {
+			routePlan.add(new Command(Command.Type.FORWARD, (routeUnit - i) * ratio));
+		}
+		
+		// The direction the Robot is facing at the end of the route
+		// By default it's the same as the startDirection
+		SIDE robotDirection = startDirection;
+		
+		// It the start and finish point are in the same row / column, the route calculation stops here. 
+		if (start.getX() != finish.getX() && start.getY() != finish.getY()) {
+			// Calculate Turn command for the beginning of the second half of the route
+			// Basically it can be 90 or -90
+			int turnDegree;
+			switch (startDirection) {
+				case TOP: turnDegree = start.getY() < finish.getY() ? 90 : -90; break;
+				case BOTTOM: turnDegree = start.getY() < finish.getY() ? -90 : 90; break;
+				case RIGHT: turnDegree = start.getX() < finish.getX() ? 90 : -90; break;
+				case LEFT: turnDegree = start.getX() < finish.getX() ? -90 : 90; break;
+				default: /* not possible */ throw new RuntimeException("Undefined SIDE");
+			}
+			
+			// Add the Turn Command to the route
+			Command midTurn = new Command(Command.Type.TURN, turnDegree);
+			routePlan.add(midTurn);
+			
+			// Change the Robot facing direction
+			robotDirection = SIDE.fromDiscrateDegree(SIDE.toDegree(startDirection) + turnDegree);
+			
+			// Generate the second half of the route
+			switch (robotDirection) {
+				case TOP:
+				case BOTTOM: routeUnit = Math.abs(start.getX() - finish.getX()); break;
+				case RIGHT:
+				case LEFT: routeUnit = Math.abs(start.getY() - finish.getY()); break;
+				default: /* not possible */ throw new RuntimeException("Undefined SIDE");
+			}
+			for (int i = 0; i < routeUnit; i++) {
+				routePlan.add(new Command(Command.Type.FORWARD, (routeUnit - i) * ratio));
+			}
+		}
+	
+		return new RoutePlanWrapper(routePlan, robotDirection);
+	}
+
+	/**
 	 * Returns the Point located on the given Point's side.
 	 * @param point
 	 * @param side
