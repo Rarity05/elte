@@ -51,8 +51,12 @@ public class RoutePlanner implements IRoutePlanner {
 		CollisionSideWrapper collisionToBox = CollisionSideWrapper.mirror(getCollisionSides(_box, _robot));
 		CollisionSideWrapper directionsToBox = directionsFromCollisionSides(collisionToBox, collisionToTarget);
 		
+		// Create the ArrayList which will hold the RoutePlan as the return value of this method
 		ArrayList<Command> retVal = new ArrayList<Command>();
+		
+		// Calculate the initial turn command, which will face the Robot in the correct direction
 		Command initialTurn = turnRobot(_robot, directionsToBox.getOptional());
+		retVal.add(initialTurn);
 		
 		return null;
 	}
