@@ -26,6 +26,10 @@ public class RoutePlanner implements IRoutePlanner {
 	 */
 	@Override
 	public ArrayList<Command> getRoutePlan(ImageData imageData) {
+		if (imageData == null) {
+			throw new IllegalArgumentException("ImageData can't be null");
+		}
+		
 		if (imageData.getRobot() == null || imageData.getBoxes().isEmpty() || imageData.getTargets().isEmpty()) {
 			return new ArrayList<Command>();
 		}
@@ -47,9 +51,36 @@ public class RoutePlanner implements IRoutePlanner {
 		CollisionSideWrapper collisionToBox = CollisionSideWrapper.mirror(getCollisionSides(_box, _robot));
 		CollisionSideWrapper directionsToBox = directionsFromCollisionSides(collisionToBox, collisionToTarget);
 		
+		ArrayList<Command> retVal = new ArrayList<Command>();
+		Command initialTurn = turnRobot(_robot, directionsToBox.getOptional());
+		
 		return null;
 	}
 	
+	/**
+	 * Creates a Turn Command into the given SIDE direction
+	 * @param robot
+	 * @param direction
+	 * @return Turn Command containing the degree of turn
+	 */
+	private Command turnRobot(RPoint robot, SIDE direction) {
+		Command.Type type = Command.Type.TURN;
+		int from = robot.getAngle(), to;
+		
+		switch (direction) {
+			case TOP: to = 360; break;
+			case RIGHT: to = 90; break;
+			case BOTTOM: to = 180; break;
+			case LEFT: to = 270; break;
+			default: /* not possible */ throw new RuntimeException("Undefined SIDE");
+		}
+		
+		boolean turnRight = ((from-to) % 360 >= 180);
+		int turnDegree = turnRight ?  (to-from) % 360 : (from-to) % 360 * -1;
+		
+		return new Command(type, turnDegree);
+	}
+
 	/**
 	 * Calculates which side to collide with the target, and which direction should the object move first. 
 	 * @param object
