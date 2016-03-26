@@ -62,6 +62,22 @@ public class RoutePlanner implements IRoutePlanner {
 	}
 	
 	/**
+	 * Returns the Point located on the given Point's side.
+	 * @param point
+	 * @param side
+	 * @return the Point located on the given Point's side.
+	 */
+	private Point getSidePoint(Point point, SIDE side) {
+		switch (side) {
+			case TOP: return new Point(point.getX()-1, point.getY());
+			case RIGHT: return new Point(point.getX(), point.getY()+1);
+			case BOTTOM: return new Point(point.getX()+1, point.getY());
+			case LEFT: return new Point(point.getX(), point.getY()-1);
+			default: /* not possible */ throw new RuntimeException("Undefined SIDE");
+		}
+	}
+
+	/**
 	 * Creates a Turn Command into the given SIDE direction
 	 * @param robot
 	 * @param direction
