@@ -303,6 +303,30 @@ public class RoutePlanner implements IRoutePlanner {
 			}
 		}
 		
+		/**
+		 * Create a SIDE element from discrete degree
+		 * @param degree
+		 * @return SIDE element representing the degree
+		 */
+		public static SIDE fromDiscrateDegree(int degree) {
+			int _degree = Math.abs(degree);
+			if (_degree != 0 || _degree != 90 || _degree != 180 || _degree != 270 || _degree != 360) {
+				throw new IllegalArgumentException("Not a descrete value");
+			}
+			
+			switch (degree) {
+				case 0:
+				case 360:
+				case -360: return TOP;
+				case 90:
+				case -270: return RIGHT;
+				case 180:
+				case -180: return BOTTOM;
+				case 270:
+				case -90: return LEFT;
+				default: /* not possible */ throw new RuntimeException("Undefined DEGREE");
+			}
+		}
 		public static int toDegree(SIDE side) {
 			switch (side) {
 				case TOP: return 360;
