@@ -91,6 +91,16 @@ public class RoutePlanner implements IRoutePlanner {
 		Command.Type type = Command.Type.TURN;
 		return new Command(type, turnDegree);
 	}
+	
+	/**
+	 * Creates a Turn Command between two SIDE directions
+	 * @param from
+	 * @param to
+	 * @return Turn Command containing the degree of turn
+	 */
+	private Command getTurnCommand(SIDE from, SIDE to) {				
+		return getTurnCommand(new RPoint(0, 0, SIDE.toDegree(from)), to);
+	}
 
 	/**
 	 * Calculates which side to collide with the target, and which direction should the object move first. 
