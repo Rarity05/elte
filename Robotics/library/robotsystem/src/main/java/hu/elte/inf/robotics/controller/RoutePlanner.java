@@ -327,6 +327,12 @@ public class RoutePlanner implements IRoutePlanner {
 				default: /* not possible */ throw new RuntimeException("Undefined DEGREE");
 			}
 		}
+
+		/**
+		 * Converts a SIDE element into degree
+		 * @param side
+		 * @return the degree the SIDE element is representing
+		 */
 		public static int toDegree(SIDE side) {
 			switch (side) {
 				case TOP: return 360;
