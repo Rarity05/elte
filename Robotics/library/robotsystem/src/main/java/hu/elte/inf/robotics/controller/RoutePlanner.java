@@ -55,7 +55,7 @@ public class RoutePlanner implements IRoutePlanner {
 		ArrayList<Command> retVal = new ArrayList<Command>();
 		
 		// Calculate the initial turn command, which will face the Robot in the correct direction
-		Command initialTurn = turnRobot(_robot, directionsToBox.getOptional());
+		Command initialTurn = getTurnCommand(_robot, directionsToBox.getOptional());
 		retVal.add(initialTurn);
 		
 		return null;
@@ -83,21 +83,12 @@ public class RoutePlanner implements IRoutePlanner {
 	 * @param direction
 	 * @return Turn Command containing the degree of turn
 	 */
-	private Command turnRobot(RPoint robot, SIDE direction) {
-		Command.Type type = Command.Type.TURN;
-		int from = robot.getAngle(), to;
-		
-		switch (direction) {
-			case TOP: to = 360; break;
-			case RIGHT: to = 90; break;
-			case BOTTOM: to = 180; break;
-			case LEFT: to = 270; break;
-			default: /* not possible */ throw new RuntimeException("Undefined SIDE");
-		}
-		
+	private Command getTurnCommand(RPoint robot, SIDE direction) {
+		int from = robot.getAngle(), to = SIDE.toDegree(direction);
 		boolean turnRight = ((from-to) % 360 >= 180);
 		int turnDegree = turnRight ?  (to-from) % 360 : (from-to) % 360 * -1;
 		
+		Command.Type type = Command.Type.TURN;
 		return new Command(type, turnDegree);
 	}
 
@@ -299,6 +290,16 @@ public class RoutePlanner implements IRoutePlanner {
 				case BOTTOM: return TOP;
 				case LEFT: return RIGHT;
 				default : /* should never happen */ throw new RuntimeException("Undefined SIDE element");
+			}
+		}
+		
+		public static int toDegree(SIDE side) {
+			switch (side) {
+				case TOP: return 360;
+				case RIGHT: return 90;
+				case BOTTOM: return 180;
+				case LEFT: return 270;
+				default: /* not possible */ throw new RuntimeException("Undefined SIDE");
 			}
 		}
 	}
