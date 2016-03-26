@@ -219,6 +219,31 @@ public class RoutePlanner implements IRoutePlanner {
 			throw new RuntimeException("Optional has no value");
 		}
 	}
+	
+	/**
+	 * Private inner wrapper class
+	 * Holds a route plan as an ArrayList of Commands, and a direction as a SIDE which
+	 * is the robot facing at the end of the path.
+	 * @author Sam
+	 *
+	 */
+	private class RoutePlanWrapper {
+		private ArrayList<Command> routePlan;
+		private SIDE robotDirection;
+		
+		public RoutePlanWrapper(ArrayList<Command> routePlan, SIDE robotDirection) {
+			this.routePlan = routePlan;
+			this.robotDirection = robotDirection;
+		}
+		
+		public ArrayList<Command> getRoutePlan() {
+			return this.routePlan;
+		}
+		
+		public SIDE getRobotDirection() {
+			return this.robotDirection;
+		}
+	}
 
 	/**
 	 * Private inner wrapper class
