@@ -235,12 +235,12 @@ public class RoutePlanner implements IRoutePlanner {
 		
 		public static SIDE mirror(SIDE side) {
 			switch (side) {
-			case TOP: return BOTTOM;
-			case RIGHT: return LEFT;
-			case BOTTOM: return TOP;
-			case LEFT: return RIGHT;
-			default : /* should never happen */ throw new RuntimeException("Undefined SIDE element");
-		}
+				case TOP: return BOTTOM;
+				case RIGHT: return LEFT;
+				case BOTTOM: return TOP;
+				case LEFT: return RIGHT;
+				default : /* should never happen */ throw new RuntimeException("Undefined SIDE element");
+			}
 		}
 	}
 }
