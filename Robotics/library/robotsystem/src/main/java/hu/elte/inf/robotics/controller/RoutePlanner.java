@@ -30,13 +30,21 @@ public class RoutePlanner implements IRoutePlanner {
 			return new ArrayList<Command>();
 		}
 		
+		// Get the robot
 		RPoint _robot = imageData.getRobot();
+		
+		// Select the most upper-left target, which is the first element of target array
 		Point _target = imageData.getTargets().get(0);
+		
+		// Select the closest box to the selected target
 		Point _box = getClosestBoxToTarget(imageData.getBoxes(), _target);
 		
+		// Calculate which side of the box to push towards the target first
 		CollisionSideWrapper collisionToTarget = getCollisionSides(_box, _target);
-		CollisionSideWrapper collisionToBox = CollisionSideWrapper.mirror(getCollisionSides(_box, _robot));
 		
+		// Calculate which side of the box is more accessible to the robot (considering the target) and
+		// calculate which direction to approach to it
+		CollisionSideWrapper collisionToBox = CollisionSideWrapper.mirror(getCollisionSides(_box, _robot));
 		CollisionSideWrapper directionsToBox = directionsFromCollisionSides(collisionToBox, collisionToTarget);
 		
 		return null;
