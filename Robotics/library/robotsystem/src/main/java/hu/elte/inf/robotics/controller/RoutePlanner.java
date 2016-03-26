@@ -56,9 +56,32 @@ public class RoutePlanner implements IRoutePlanner {
 				
 		// Calculate the initial turn command, which will face the Robot in the correct direction
 		Command initialTurn = getTurnCommand(_robot, directionsToBox.getOptional());
-		routePlan.add(initialTurn);				
-				
-		return null;
+		routePlan.add(initialTurn);
+		
+		// Calculate the route from the Robot to the Box, and the end-facing direction
+		RoutePlanWrapper wrappedRouteToBox = calculateRoute(_robot, getSidePoint(_box, directionsToBox.getPreferred()), directionsToBox.getOptional(), imageData.getRatio());
+		// Add the calculated route to the route plan
+		routePlan.addAll(wrappedRouteToBox.getRoutePlan());
+		
+		// Check if the Robot is facing towards the Box or not
+		if (!wrappedRouteToBox.getRobotDirection().equals(SIDE.mirror(directionsToBox.getPreferred()))) {
+			// If not, we create a Turn Command for it, and add it to the route plan
+			Command midTurn = getTurnCommand(wrappedRouteToBox.getRobotDirection(), SIDE.mirror(directionsToBox.getPreferred()));
+			routePlan.add(midTurn);
+		}
+		
+		// Create the Collision Command, which will indicate a collision with the box
+		routePlan.add(new Command(Command.Type.COLLISION, 0));
+		
+		// Calculate the route from the Box to the Target
+		RoutePlanWrapper wrappedRouteToTarget = calculateRoute(_box, _target, SIDE.mirror(directionsToBox.getPreferred()), imageData.getRatio());
+		// Add the calculated route to the route plan
+		routePlan.addAll(wrappedRouteToTarget.getRoutePlan());
+		
+		// Create the Stop Command, which will indicate that we reached our destination
+		routePlan.add(new Command(Command.Type.STOP, 0));
+		
+		return routePlan;
 	}
 	
 	/**
