@@ -95,7 +95,7 @@ public class Signal<T> {
 	 * @param joiner the function which produces the newly created Signal's type
 	 * @return
 	 */
-	<R, K> Signal<R> join(Signal<K> joinSignal, ISignalJoin<T,K,R> joiner) {
+	<R, K> Signal<R> join(Signal<K> joinSignal, Function3<T,K,R> joiner) {
 		Signal<R> signal = new Signal<R>();
 		Signal<T> _this = this;
 		
