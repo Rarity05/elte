@@ -75,7 +75,6 @@ public class Signal<T> {
 	 */
 	<R> Signal<R> map(Function<? super T, ? extends R> mapper) {
 		Signal<R> signal = new Signal<R>();
-		signal.setValue(mapper.apply(this.value));
 		this.subscribe(new ISignalAction<T>() {
 
 			@Override
@@ -128,15 +127,13 @@ public class Signal<T> {
 	 * @param initValue
 	 * @return
 	 */
-	<R> Signal<R> accumulate(Function3<T,T,R> accumulater, R initValue) {
+	<R> Signal<R> accumulate(Function3<R,T,R> accumulater, final R initValue) {
 		Signal<R> signal = new Signal<R>();
-		signal.setValue(initValue);
-		
 		this.subscribe(new ISignalAction<T>() {
 
 			@Override
 			public void onSignalChanged(T oldValue, T newValue) {
-				signal.setValue(accumulater.apply(oldValue, newValue));	
+				signal.setValue(accumulater.apply(signal.getValue() == null ? initValue : signal.getValue(), newValue));	
 			}
 			
 		});
