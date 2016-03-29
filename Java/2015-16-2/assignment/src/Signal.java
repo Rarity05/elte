@@ -121,4 +121,26 @@ public class Signal<T> {
 		
 		return signal;
 	}
+	
+	/**
+	 * Does stuff.
+	 * @param accumulater
+	 * @param initValue
+	 * @return
+	 */
+	<R> Signal<R> accumulate(Function3<T,T,R> accumulater, R initValue) {
+		Signal<R> signal = new Signal<R>();
+		signal.setValue(initValue);
+		
+		this.subscribe(new ISignalAction<T>() {
+
+			@Override
+			public void onSignalChanged(T oldValue, T newValue) {
+				signal.setValue(accumulater.apply(oldValue, newValue));	
+			}
+			
+		});
+		
+		return signal;
+	}
 }
