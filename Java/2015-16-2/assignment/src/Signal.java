@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.function.Function;
 
 public class Signal<T> {
 	
@@ -59,5 +60,25 @@ public class Signal<T> {
 		if (action != null) {
 			this.actions.add(action);
 		}
+	}
+	
+	/**
+	 * Creates a new Signal and applies the given Function to its value
+	 * @param mapper
+	 * @return
+	 */
+	<R> Signal<R> map(Function<? super T, ? extends R> mapper) {
+		Signal<R> signal = new Signal<R>();
+		signal.setValue(mapper.apply(this.value));
+		this.subscribe(new ISignalAction<T>() {
+
+			@Override
+			public void onSignalChanged(T oldValue, T newValue) {
+				signal.setValue(mapper.apply(newValue));
+			}
+			
+		});
+		
+		return signal;		
 	}
 }
