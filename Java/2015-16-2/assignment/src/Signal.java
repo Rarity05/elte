@@ -27,7 +27,7 @@ public class Signal<T> {
 	}
 	
 	private T value;
-	private ArrayList<ISignalAction<T>> actions;
+	volatile private ArrayList<ISignalAction<T>> actions;
 	
 	public Signal() {
 		this.actions = new ArrayList<ISignalAction<T>>();
@@ -43,7 +43,7 @@ public class Signal<T> {
 	 * notifying everybody who is interested in this signal
 	 * @param value the new value
 	 */
-	public void setValue(T value) {
+	synchronized public void setValue(T value) {
 		T oldValue = this.value;
 		this.value = value;
 		
