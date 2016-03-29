@@ -60,6 +60,12 @@ public class Signal<T> {
 		if (action != null) {
 			this.actions.add(action);
 		}
+		
+		try {
+			action.onSignalChanged(this.value, this.value);
+		} catch (Exception e) {
+			System.out.println("[ERROR]: There was an error in one of the ISignalActions");
+		}
 	}
 	
 	/**
@@ -80,5 +86,39 @@ public class Signal<T> {
 		});
 		
 		return signal;		
+	}
+	
+	/**
+	 * Creates a new Signal by joining this Signal with the given Signal
+	 * The newly created Signal setter is called each time this or the given Signal changes
+	 * @param joinSignal the signal we want to join to
+	 * @param joiner the function which produces the newly created Signal's type
+	 * @return
+	 */
+	<R, K> Signal<R> join(Signal<K> joinSignal, ISignalJoin<T,K,R> joiner) {
+		Signal<R> signal = new Signal<R>();
+		Signal<T> _this = this;
+		
+		// If this signal changes, we want to update the joined signal
+		this.subscribe(new ISignalAction<T>() {
+
+			@Override
+			public void onSignalChanged(T oldValue, T newValue) {
+				signal.setValue(joiner.apply(newValue, joinSignal.getValue()));
+			}
+			
+		});
+		
+		// If the given signal changes, we want to update the joined signal
+		joinSignal.subscribe(new ISignalAction<K>() {
+
+			@Override
+			public void onSignalChanged(K oldValue, K newValue) {
+				signal.setValue(joiner.apply(_this.getValue(), newValue));
+			}
+			
+		});
+		
+		return signal;
 	}
 }
