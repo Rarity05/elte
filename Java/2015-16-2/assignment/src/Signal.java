@@ -1,6 +1,30 @@
 import java.util.ArrayList;
 
 public class Signal<T> {
+	
+	/**
+	 * Creates a constant signal
+	 * Every time somebody tries to change the value,
+	 * the subscribed listener changes it back
+	 * @return
+	 */
+	public static Signal<Integer> createConstantSignal() {
+		Signal<Integer> signal = new Signal<Integer>();
+		signal.setValue(0);
+		signal.subscribe(new ISignalAction<Integer>() {
+
+			@Override
+			public void onSignalChanged(Integer oldValue, Integer newValue) {
+				if (!oldValue.equals(newValue)) {
+					// warning: recursion
+					signal.setValue(oldValue);
+				}
+			}
+			
+		});
+		return signal;
+	}
+	
 	private T value;
 	private ArrayList<ISignalAction<T>> actions;
 	
