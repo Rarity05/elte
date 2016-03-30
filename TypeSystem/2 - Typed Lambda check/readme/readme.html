@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>BE-AD Assignment Management System</title>
+    <link type="text/css" href="./bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Részletes leírás</h2></div>
+        </div>
+        <div style="margin-left:0px; background: lightgray">
+            <h1 id="a-feladat-rövid-összefoglalása">A feladat rövid összefoglalása</h1>
+            <p>A feladat típusinformációkat is tartalmazó (Church-féle) <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span>
+                </span>
+                </span>
+                </span>-kifejezések típusának ellenőrzését az alap <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>F</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">F_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.68333em;"></span><span class="strut bottom" style="height: 0.83333em; vertical-align: -0.15em;"></span><span class="base textstyle uncramped"><span class="mord"><span class="mord mathit" style="margin-right: 0.13889em;">F</span><span class="vlist"><span class="" style="top: 0.15em; margin-right: 0.05em; margin-left: -0.13889em;"><span class="fontsize-ensurer reset-size5 size5"><span class="" style="font-size: 0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathrm">1</span></span>
+                </span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span class="" style="font-size: 0em;">​</span></span>​</span>
+                </span>
+                </span>
+                </span>
+                </span>
+                </span>
+                </span> típusrendszer szabályai szerint elvégző program elkészítése. Ennek a programnak az ellenőrizni kívánt kifejezéseket a szabványos bemenetről (standard input) kell tudnia beolvasnia, szöveges formátumban, soronként egyet, valamint az azokra adott válaszokat a szabványos kimenetre (standard output) kell tudnia kiírnia, szintén szöveges formában, soronként egyet, a lentebb megadott formátumban.</p>
+            <h2 id="a-lambda-kifejezések-szintaktikája">A <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span></span></span></span>-kifejezések szintaktikája</h2>
+            <p>A feldolgozandó, típussal megjelölt <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span>
+                </span>
+                </span>
+                </span>-kifejezéseket az alábbi nyelvtan szabályaival ábrázolhatjuk (EBNF):</p>
+            <pre><code>type              = "Bool" | "Nat" | type, "-&gt;", type | "(", type, ")";
+lambda_expression = variable
+                  | "\", variable, ":", type, ".", lambda_expression
+                  | lambda_expression, " ", lambda_expression
+                  | "(", lambda_expression, ")";
+type_context      = variable, ":", type, { ",", variable, ":", type };
+expression        = [ type_context ], "|-", lambda_expression, ":", type;</code></pre>
+            <p>ahol:</p>
+            <ul>
+                <li>
+                    <p>a <code>type</code> a rendszerben megfogalmazható típusok valamelyikét jelenti. Látható, hogy itt az alaptípusok készlete lényegében csak a <code>Bool</code> és <code>Nat</code> típusok, viszont ezekből a függvény típusoperátorával akár tetszőleges hosszú sorozatot is tudunk szerkeszteni. A típusok körül opcionálisan zárójelek is szerepelhetnek. A redundáns zárójelek mindig elhagyhatóak, még pedig úgy, hogy a függvény operátorát jobbasszociatívnak tekintjük,</p>
+                </li>
+                <li>
+                    <p>a <code>type_context</code> a <code>variable</code> által jelölt változók és a hozzájuk társított típusok. A <code>variable</code> egy egybetűs szimbólum, általában az angol kisbetűs ábécé végétől kezdődően,</p>
+                </li>
+                <li>
+                    <p>a <code>lambda_expression</code> egy szintaktikailag helyes <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span>
+                        </span>
+                        </span>
+                        </span>-kifejezés, ahol a <code>\</code> segítségével jelölt <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span>
+                        </span>
+                        </span>
+                        </span> absztraktoroknál nem csak az általuk kötött változókat adjuk meg, de hozzá társítjuk annak típusát is. A kötött változók hatókörét jelentő <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span>
+                        </span>
+                        </span>
+                        </span>-kifejezést a <code>.</code> (pont) vezeti be. A <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span>
+                        </span>
+                        </span>
+                        </span>-kifejezésekben az applikációt (függvényalkalmazást) a ` ` (szóköz) jelöli. A <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span>
+                        </span>
+                        </span>
+                        </span>-kifejezések körül opcionálisan zárójelek is szerepelhetnek. A redundáns zárójelek mindig elhagyhatóak, az absztrakciók és applikációt zárójeleit úgy hagyhatjuk el, hogy az absztrakció műveletét jobbasszociatívnak, az applikációt pedig balasszociatívnak tekintjük, valamint az applikáció kötési erőssége a nagyobb,</p>
+                </li>
+                <li>
+                    <p>az <code>expression</code> jelöli a program bemeneteként érkező, felső szintű kifejezések általános alakját. A <code>|-</code> (szintaktikai következmény) előtt opcionális szerepelhet a következtetéshez használt típuskörnyezet (ennek hiányában azt üresnek tekintjük), utána pedig az a típusos <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span>
+                        </span>
+                        </span>
+                        </span>-kifejezés, amelyet le akar vezetni, vagyis ellenőrizni a típusát. Ezek együtt adnak egy levezetendő következtetést az <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>F</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">F_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.68333em;"></span><span class="strut bottom" style="height: 0.83333em; vertical-align: -0.15em;"></span><span class="base textstyle uncramped"><span class="mord"><span class="mord mathit" style="margin-right: 0.13889em;">F</span><span class="vlist"><span class="" style="top: 0.15em; margin-right: 0.05em; margin-left: -0.13889em;"><span class="fontsize-ensurer reset-size5 size5"><span class="" style="font-size: 0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathrm">1</span></span>
+                        </span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span class="" style="font-size: 0em;">​</span></span>​</span>
+                        </span>
+                        </span>
+                        </span>
+                        </span>
+                        </span>
+                        </span> típusrendszerben.</p>
+                </li>
+            </ul>
+            <p>Ennek megfelelően a programnak tehát például a következő, szintaktikailag helyes, következtetéseket el kell tudnia fogadnia:</p>
+            <pre><code>x:Bool |- (\y:Nat.x): Nat -&gt; Bool
+x:(Bool -&gt; Nat) -&gt; Nat, z: Nat |- \w:Bool -&gt; Nat.(w v) : Bool -&gt; Bool -&gt; Bool</code></pre>
+            <p>a következő következtetéseket pedig a programnak hibásnak kell tekintenie:</p>
+            <pre><code>|-
+x |-
+|- x
+|- x Bool
+|- \x.x</code></pre>
+            <h2 id="a-típusellenőrzés-lépései">A típusellenőrzés lépései</h2>
+            <p>A szintaktikailag helyes, típusos <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span>
+                </span>
+                </span>
+                </span>-kifejezések jól típusozottságának ellenőrzéséhez a következő lépéseket kell lényegében végrehajtanunk:</p>
+            <ul>
+                <li>
+                    <p>Ellenőrizzük a bemenetként kapott következtetést, és csak abban az esetben folytassuk a feldolgozását, amennyiben az teljesíti a szintaktikai szabályokat. Itt, a következtetés jobb oldalán akár nyílt <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span>
+                        </span>
+                        </span>
+                        </span>-kifejezéseket is elfogadhatunk, hiszen ezek típusozhatóak lehetnek abban az esetben, ha a bal oldalon (a típuskörnyezetben) van információnk a kifejezésben szabad változóiról.</p>
+                </li>
+                <li>
+                    <p>Szerkesszük meg a következtetéshez tartozó levezetési fát az <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>F</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">F_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.68333em;"></span><span class="strut bottom" style="height: 0.83333em; vertical-align: -0.15em;"></span><span class="base textstyle uncramped"><span class="mord"><span class="mord mathit" style="margin-right: 0.13889em;">F</span><span class="vlist"><span class="" style="top: 0.15em; margin-right: 0.05em; margin-left: -0.13889em;"><span class="fontsize-ensurer reset-size5 size5"><span class="" style="font-size: 0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathrm">1</span></span>
+                        </span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span class="" style="font-size: 0em;">​</span></span>​</span>
+                        </span>
+                        </span>
+                        </span>
+                        </span>
+                        </span>
+                        </span> típusrendszer következtetési szabályai szerint:</p>
+                    <ul>
+                        <li>
+                            <p>vegyük észre, hogy a <code>TYPE_CONST</code> és <code>TYPE_ARROW</code> szabályokat már a szintaktikai elemzést során vizsgáljuk, így ezeket külön már <em>nem kell</em> beépíteni a levezetésbe,</p>
+                        </li>
+                        <li>
+                            <p>az <code>ENV_0</code> lesz a rendszer axiómája, tehát ha eddig a pontig eljutunk, akkor a levezetés befejeződik,</p>
+                        </li>
+                        <li>
+                            <p>a megvalósítandó szabályok tehát az <code>ENV_x</code>, <code>VAL_x</code>, <code>VAL_ABS</code> és <code>VAL_APPL</code>.</p>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <p>Az alkalmazandó szabályokat érdemes a levezetendő típusos <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span>
+                        </span>
+                        </span>
+                        </span>-kifejezés szintaktikai alakja szerint megválasztani, a kifejezés külsejétől befele haladva. (Így mindig egyértelmű és nincs szükségünk visszalépésre.) Ha már nem találunk alkalmazandó szabályt, de még nem értük el az axiómát, akkor ott a levezetés hibával megáll.</p>
+                </li>
+            </ul>
+            <p>Ennek megfelelően például a következő kifejezések típusa levezethető:</p>
+            <pre><code>x:Bool -&gt; Bool -&gt; Bool |- x : Bool -&gt; Bool -&gt; Bool
+x:Bool |- \y:Nat.x : Nat -&gt; Bool
+|- \x:Bool -&gt; Nat.\y:Bool.x y : (Bool -&gt; Nat) -&gt; Bool -&gt; Nat
+f:Nat -&gt; Bool |- \x:Nat.f x : Nat -&gt; Bool
+|- \x:Nat.\y:Bool.x : Nat -&gt; Bool -&gt; Nat
+|- \x:Nat.\y:Bool.x : Nat -&gt; (Bool -&gt; Nat)
+y:Bool |- \x:Bool -&gt; Nat.x y : (Bool -&gt; Nat) -&gt; Nat
+|- (\f:(Nat -&gt; Nat) -&gt; Nat -&gt; Nat.\x:Nat -&gt; Nat.f (f x)) (\f:Nat -&gt; Nat.\x:Nat.f (f x)) : (Nat -&gt; Nat) -&gt; Nat -&gt; Nat</code></pre>
+            <p>illetve az alábbiakban következzen néhány példa olyan esetekre is, amikor nem vezethető le a típus:</p>
+            <pre><code>|- x : Bool
+x:Bool -&gt; Nat, y:Nat |- x y : Nat
+x:Bool -&gt; Nat, y:Bool |- x y : Bool -&gt; Bool
+|- \x:Nat.x x : Nat -&gt; Nat
+|- \x:Bool.(\y:Nat.y) x : Bool -&gt; Bool
+|- \x:Nat.\y:Bool.x : (Nat -&gt; Bool) -&gt; Nat</code></pre>
+            <h2 id="kimenetek">Kimenetek</h2>
+            <p>Ha a programnak sikerül levezetnie a kapott típusos <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span>
+                </span>
+                </span>
+                </span>-kifejezés típusát, akkor legyen a kimenet a következő:</p>
+            <pre><code>OK: typed_expression</code></pre>
+            <p>ahol a <code>typed_expression</code> helyén annak a kifejezésnek kell megjelennie, a <span class="math inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span>
+                </span>
+                </span>
+                </span>-kifejezést és a benne szereplő típusokat teljesen zárójelezett alakban megadva (a kimenet egyértelműsége miatt), amelynek a típusát ellenőriztük.</p>
+            <p>Például:</p>
+            <pre><code>OK: x : (Bool -&gt; (Bool -&gt; Bool))
+OK: (\y:Nat.x):(Nat -&gt; Bool)
+OK: (\x:Nat.(\y:Bool.x)):(Nat -&gt; (Bool -&gt; Nat))</code></pre>
+            <p>Amennyiben nem volt szintakailag helyes a bemenet, a kimenet legyen a következő:</p>
+            <pre><code>ERROR: input_expression</code></pre>
+            <p>ahol az <code>input_expression</code> jelöli az eredetileg megadott, típussal megjelölt következtetést, változatlan alakban, amelyet bemenetként megadtunk. Például:</p>
+            <pre><code>ERROR: |-
+ERROR: x |- \x.x
+ERROR: x |-</code></pre>
+            <p>Hasonlóan, ha a kifejezés szintaktikailag megfelelő alakú volt, de a hozzárendelt típus nem volt levezethető, szintén <code>ERROR</code> kimenetet adjunk. Viszont utána csak azt a részkifejezést, <code>input_subexpression</code>, jelenítsük meg, amely típusa végül nem volt levezethető.</p>
+            <pre><code>ERROR: invalid_subexpression</code></pre>
+            <p>Például:</p>
+            <pre><code>ERROR: x
+ERROR: (x x)
+ERROR: ((\y:Nat.y) x)</code></pre>
+            <h2 id="példák">Példák</h2>
+            <p>Összefoglalásképpen tekintsünk teljes példákat a bemenettel és a rájuk válaszolandó kimenettel együtt:</p>
+            <pre><code>|-
+ERROR: |-
+x |-
+ERROR: x |-
+|- x
+ERROR: |- x
+|- x Bool
+ERROR: |- x Bool
+|- \x.x
+ERROR: |- \x.x
+|- x : Bool
+ERROR: x
+x:Bool -&gt; Nat, y:Nat |- x y : Nat
+ERROR: (x y)
+|- \x:Nat.x x : Nat -&gt; Nat
+ERROR: (x x)
+|- \x:Bool.(\y:Nat.y) x : Bool -&gt; Bool
+ERROR: ((\y:Nat.y) x)
+x:Bool -&gt; Bool -&gt; Bool |- x : Bool -&gt; Bool -&gt; Bool
+OK: x : (Bool -&gt; (Bool -&gt; Bool))
+x:Bool |- \y:Nat.x : Nat -&gt; Bool
+OK: (\y:Nat.x):(Nat -&gt; Bool)
+|- \x:Bool -&gt; Nat.\y:Bool.x y : (Bool -&gt; Nat) -&gt; Bool -&gt; Nat
+OK: (\x:(Bool -&gt; Nat).(\y:Bool.(x y))):((Bool -&gt; Nat) -&gt; (Bool -&gt; Nat))
+f:Nat -&gt; Bool |- \x:Nat.f x : Nat -&gt; Bool
+OK: (\x:Nat.(f x)):(Nat -&gt; Bool)
+|- \x:Nat.\y:Bool.x : Nat -&gt; Bool -&gt; Nat
+OK: (\x:Nat.(\y:Bool.x)):(Nat -&gt; (Bool -&gt; Nat))
+|- \x:Nat.\y:Bool.x : Nat -&gt; (Bool -&gt; Nat)
+OK: (\x:Nat.(\y:Bool.x)):(Nat -&gt; (Bool -&gt; Nat))
+|- \x:Nat.\y:Bool.x : (Nat -&gt; Bool) -&gt; Nat
+ERROR: (\x:Nat.(\y:Bool.x))
+y:Bool |- \x:Bool -&gt; Nat.x y : (Bool -&gt; Nat) -&gt; Nat
+OK: (\x:(Bool -&gt; Nat).(x y)):((Bool -&gt; Nat) -&gt; Nat)
+|- (\f:(Nat -&gt; Nat) -&gt; Nat -&gt; Nat.\x:Nat -&gt; Nat.f (f x)) (\f:Nat -&gt; Nat.\x:Nat.f (f x)) : (Nat -&gt; Nat) -&gt; Nat -&gt; Nat
+OK: ((\f:((Nat -&gt; Nat) -&gt; (Nat -&gt; Nat)).(\x:(Nat -&gt; Nat).(f (f x)))) (\f:(Nat -&gt; Nat).(\x:Nat.(f (f x))))):((Nat -&gt; Nat) -&gt; (Nat -&gt; Nat))</code></pre>
+            <h1 id="implementációs-részletek">Implementációs részletek</h1>
+            <p>A feladatot a következő négy programozási nyelv valamelyikén lehet megoldani: Haskell, Java, C++ és Python. A megoldásban lehetőség szerint törekedjünk a minél egyszerűbb, rövidebb (, minél kevesebb külső függőséget alkalmazó), ámde olvasható és érthető forráskód írására! Az egyes nyelveken készített implementációkkal kapcsolatos egyéb elvárásokat az alábbiakban foglaljuk röviden össze.</p>
+            <h2 id="haskell">Haskell</h2>
+            <p>Haskell nyelv esetében a beadott megoldásnak tartalmaznia kell egy <code>Main.hs</code> állományt, amelyben szerepel a főprogramként alkalmazható <code>main</code> akció. A programnak tehát a következőképpen fordíthatónak kell lennie:</p>
+            <pre><code>$ ghc --make Main.hs</code></pre>
+            <p>valamint a következőképpen pedig futtathatónak:</p>
+            <pre><code>$ echo "x:Bool |- \y:Nat.x : Nat -&gt; Bool" | ./Main
+OK: (\y:Nat.x):(Nat -&gt; Bool)</code></pre>
+            <p>Az esetlegesen alkalmazott nyelvi kiterjesztéseket a <code>LANGUAGE</code> pragma használatával soroljuk fel minden modul elején! Feltételezhetjük, hogy az ellenőrzésnél a GHC 7.8.3 és a Haskell Platform 2014.2.0.0 áll rendelkezésre.</p>
+            <h2 id="java">Java</h2>
+            <p>Java nyelv esetében két lehetőség adott. Az első esetben a beadott megoldás tartalmazhat egy <code>Main.java</code> állományt, ebben kell lennie egy <code>Main</code> osztálynak, ahol a <code>main()</code> metódus elérhető. A programnak ilyenkor tehát a következőképpen fordíthatónak kell lennie:</p>
+            <pre><code>$ javac Main.java</code></pre>
+            <p>valamint a következőképpen futtathatónak:</p>
+            <pre><code>$ echo "x:Bool |- \y:Nat.x : Nat -&gt; Bool" | java Main
+OK: (\y:Nat.x):(Nat -&gt; Bool)</code></pre>
+            <p>A másik esetben a beadott megoldás tartalmazhat egy <code>pom.xml</code> állományt, amely azt írja le, hogy Maven segítségével miként lehet fordítható és futtatható. A programnak ilyenkor tehát a következőképpen fordíthatónak kell lennie:</p>
+            <pre><code>$ mvn package</code></pre>
+            <p>valamint a következőképpen futtathatónak:</p>
+            <pre><code>$ echo "x:Bool |- \y:Nat.x : Nat -&gt; Bool" | mvn exec:java
+OK: (\y:Nat.x):(Nat -&gt; Bool)</code></pre>
+            <p>Feltételezhetjük, hogy a tesztelésnél a JDK 1.7, 1.8 és a Maven 3.1 változata áll rendelkezésre.</p>
+            <h2 id="c">C++</h2>
+            <p>C++ nyelv esetében a beadott megoldásnak tartalmaznia kell egy (GNU <code>make(1)</code> által feldolgozható) <code>Makefile</code> állományt, amelynek alkalmazásával létre kell tudni hozni egy <code>main</code> nevű binárist. Feltételezhetjük, hogy a rendszerre telepített könyvtárak a <code>/usr/include</code>, <code>/usr/local/include</code> (header) és <code>/usr/lib</code>, <code>/usr/local/lib</code> (lib) könyvtárakból érhetőek el. A programnak ezek mentén a következőképpen fordíthatónak kell lennie:</p>
+            <pre><code>$ make</code></pre>
+            <p>valamint a következőképpen futtathatónak:</p>
+            <pre><code>$ echo "x:Bool |- \y:Nat.x : Nat -&gt; Bool" | ./main
+OK: (\y:Nat.x):(Nat -&gt; Bool)</code></pre>
+            <p>Feltételezhetjük, hogy az ellenőrzésnél a GCC 4.8.4, illetve a Clang 3.4.1, valamint a Flex 2.5.37, a BisonC++ 4.01.00 és a Boost 1.55.0 áll majd rendelkezésre.</p>
+            <h2 id="python">Python</h2>
+            <p>Python nyelv esetében a beadott megoldásnak tartalmaznia kell egy <code>main.py</code> állományt, ebben kell lennie a főprogramnak. A szkriptet tehát a következő módon futtatni kell tudni:</p>
+            <pre><code>$ echo "x:Bool |- \y:Nat.x : Nat -&gt; Bool" | python ./main.py
+OK: (\y:Nat.x):(Nat -&gt; Bool)</code></pre>
+            <p>Feltételezhetjük, hogy az ellenőrzésnél a Python 2.7.9 áll rendelkezésre.</p>
+            <h2 id="egyéb">Egyéb</h2>
+            <p>Amennyiben olyan eszközt szeretnénk használni a fentebb említett nyelvek esetén, amelyet nem említettünk, kérjük az oktatóktól!</p>
+        </div>
+    </div>
+</body>
+
+</html>
