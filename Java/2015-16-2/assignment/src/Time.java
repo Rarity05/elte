@@ -8,8 +8,7 @@ public class Time {
 	 * @return
 	 */
 	public static Signal<Integer> every(int delay, Times multiplier) {
-		Signal<Integer> signal = new Signal<Integer>();
-		signal.setValue(0);
+		Signal<Integer> signal = new Signal<Integer>(0);
 		final int timeout = delay * multiplier.getValue();
 		
 		Thread myThread = new Thread(new Runnable() {
@@ -18,7 +17,7 @@ public class Time {
 			public void run() {
 				boolean l = true;
 				while (l) {
-					signal.setValue(signal.getValue());
+					signal.setValue((signal.getValue()+1)%3600);
 					try {
 						Thread.sleep(timeout);
 					} catch (InterruptedException e) {

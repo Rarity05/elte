@@ -15,7 +15,9 @@ public class Main {
 
 			@Override
 			public void onSignalChanged(String oldValue, String newValue) {
-				System.out.println(newValue);
+				if (newValue != null) {
+					System.out.println(newValue);
+				}
 			}
 	    	
 	    });
@@ -25,7 +27,9 @@ public class Main {
 
 			@Override
 			public void onSignalChanged(Integer oldValue, Integer newValue) {
-				System.out.println(newValue + " seconds");				
+				if (newValue != null) {
+					System.out.println(newValue + " seconds");
+				}
 			}
 	    	
 	    });

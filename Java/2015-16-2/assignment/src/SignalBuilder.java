@@ -5,7 +5,8 @@ public class SignalBuilder {
 
 	public static Signal<String> consoleSignal() {
 		final BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		final Signal<String> consoleSignal = new Signal<String>();
+		final Signal<String> consoleSignal = new Signal<String>(null);
+		
 	    Thread consoleReader = new Thread(new Runnable() {
 
 			@Override
@@ -26,6 +27,7 @@ public class SignalBuilder {
 	    	
 	    });
 	    consoleReader.start();
+	    
 	    return consoleSignal;
 	}
 

@@ -18,13 +18,14 @@ public class Signal<T> {
 	private boolean isConstant = false;
 	volatile private ArrayList<ISignalAction<T>> actions;
 	
-	public Signal() {
+	public Signal(T value) {
 		this.actions = new ArrayList<ISignalAction<T>>();
+		this.value = value;
 	}
 	
-	public <R> Signal(R value, boolean isConstant) {
-		this();
-		this.isConstant = true;
+	public Signal(T value, boolean isConstant) {
+		this(value);
+		this.isConstant = isConstant;
 	}
 	
 	public T getValue() {
@@ -57,12 +58,12 @@ public class Signal<T> {
 	public void subscribe(ISignalAction<T> action) {
 		if (action != null) {
 			this.actions.add(action);
-		}
-		
-		try {
-			action.onSignalChanged(this.value, this.value);
-		} catch (Exception e) {
-			System.out.println("[ERROR]: There was an error in one of the ISignalActions");
+			
+			try {
+				action.onSignalChanged(this.value, this.value);
+			} catch (Exception e) {
+				System.out.println("[ERROR]: There was an error in one of the ISignalActions");
+			}
 		}
 	}
 	
@@ -72,12 +73,14 @@ public class Signal<T> {
 	 * @return
 	 */
 	<R> Signal<R> map(Function<? super T, ? extends R> mapper) {
-		Signal<R> signal = new Signal<R>();
+		Signal<R> signal = new Signal<R>(mapper.apply(this.value));
 		this.subscribe(new ISignalAction<T>() {
 
 			@Override
 			public void onSignalChanged(T oldValue, T newValue) {
-				signal.setValue(mapper.apply(newValue));
+				if (!oldValue.equals(newValue)) {
+					signal.setValue(mapper.apply(newValue));
+				}
 			}
 			
 		});
@@ -93,7 +96,7 @@ public class Signal<T> {
 	 * @return
 	 */
 	<R, K> Signal<R> join(Signal<K> joinSignal, BiFunction<T,K,R> joiner) {
-		Signal<R> signal = new Signal<R>();
+		Signal<R> signal = new Signal<R>(joiner.apply(this.value, joinSignal.getValue()));
 		Signal<T> _this = this;
 		
 		// If this signal changes, we want to update the joined signal
@@ -101,7 +104,9 @@ public class Signal<T> {
 
 			@Override
 			public void onSignalChanged(T oldValue, T newValue) {
-				signal.setValue(joiner.apply(newValue, joinSignal.getValue()));
+				if (!oldValue.equals(newValue)) {
+					signal.setValue(joiner.apply(newValue, joinSignal.getValue()));
+				}
 			}
 			
 		});
@@ -111,7 +116,9 @@ public class Signal<T> {
 
 			@Override
 			public void onSignalChanged(K oldValue, K newValue) {
-				signal.setValue(joiner.apply(_this.getValue(), newValue));
+				if (!oldValue.equals(newValue)) {
+					signal.setValue(joiner.apply(_this.getValue(), newValue));
+				}
 			}
 			
 		});
@@ -126,12 +133,14 @@ public class Signal<T> {
 	 * @return
 	 */
 	<R> Signal<R> accumulate(BiFunction<R,T,R> accumulater, final R initValue) {
-		Signal<R> signal = new Signal<R>();
+		Signal<R> signal = new Signal<R>(initValue);
 		this.subscribe(new ISignalAction<T>() {
 
 			@Override
 			public void onSignalChanged(T oldValue, T newValue) {
-				signal.setValue(accumulater.apply(signal.getValue() == null ? initValue : signal.getValue(), newValue));	
+				if (!oldValue.equals(newValue)) {
+					signal.setValue(accumulater.apply(signal.getValue() == null ? initValue : signal.getValue(), newValue));
+				}
 			}
 			
 		});
