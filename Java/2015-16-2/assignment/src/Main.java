@@ -1,11 +1,6 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
 public class Main {
 
-	public static void main(String... args) {
-		final BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		
+	public static void main(String... args) {		
 		// Timer signal
 	    Signal<Integer> timeSignal = Time.every(1, Times.SECONDS);
 	    
@@ -13,27 +8,7 @@ public class Main {
 	    Signal<Integer> timeFromStart = timeSignal.accumulate((counter, value) -> counter + 1, 0);
 	    
 	    // Console reader signal
-	    final Signal<String> consoleSignal = new Signal<String>();
-	    Thread consoleReader = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				String input;
-				boolean l = true;
-				while (l) {
-					try {
-						if ((input = in.readLine()) != null && input.length() != 0) {
-							consoleSignal.setValue(input);
-						}
-		 	    	} catch (Exception e) {
-		 	    		l = false;
-		 	    		e.printStackTrace();
-					}
-				}
-			}
-	    	
-	    });
-	    consoleReader.start();
+	    Signal<String> consoleSignal = SignalBuilder.consoleSignal();
 	    
 	    // Writing console input to output
 	    consoleSignal.subscribe(new ISignalAction<String>() {
@@ -54,7 +29,6 @@ public class Main {
 			}
 	    	
 	    });
-	    
 	}
 
 }
