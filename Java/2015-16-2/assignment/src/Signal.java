@@ -10,28 +10,21 @@ public class Signal<T> {
 	 * the subscribed listener changes it back
 	 * @return
 	 */
-	public static Signal<Integer> createConstantSignal() {
-		Signal<Integer> signal = new Signal<Integer>();
-		signal.setValue(0);
-		signal.subscribe(new ISignalAction<Integer>() {
-
-			@Override
-			public void onSignalChanged(Integer oldValue, Integer newValue) {
-				if (!oldValue.equals(newValue)) {
-					// warning: recursion
-					signal.setValue(oldValue);
-				}
-			}
-			
-		});
-		return signal;
+	public static <R> Signal<R> createConstantSignal(final R value) {
+		return new Signal<R>(value, true);
 	}
 	
 	private T value;
+	private boolean isConstant = false;
 	volatile private ArrayList<ISignalAction<T>> actions;
 	
 	public Signal() {
 		this.actions = new ArrayList<ISignalAction<T>>();
+	}
+	
+	public <R> Signal(R value, boolean isConstant) {
+		this();
+		this.isConstant = true;
 	}
 	
 	public T getValue() {
@@ -45,6 +38,10 @@ public class Signal<T> {
 	 * @param value the new value
 	 */
 	synchronized public void setValue(T value) {
+		if (this.isConstant) {
+			return;
+		}
+		
 		T oldValue = this.value;
 		this.value = value;
 		
