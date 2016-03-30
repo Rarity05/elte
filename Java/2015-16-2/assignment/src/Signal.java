@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class Signal<T> {
@@ -94,7 +95,7 @@ public class Signal<T> {
 	 * @param joiner the function which produces the newly created Signal's type
 	 * @return
 	 */
-	<R, K> Signal<R> join(Signal<K> joinSignal, Function3<T,K,R> joiner) {
+	<R, K> Signal<R> join(Signal<K> joinSignal, BiFunction<T,K,R> joiner) {
 		Signal<R> signal = new Signal<R>();
 		Signal<T> _this = this;
 		
@@ -127,7 +128,7 @@ public class Signal<T> {
 	 * @param initValue
 	 * @return
 	 */
-	<R> Signal<R> accumulate(Function3<R,T,R> accumulater, final R initValue) {
+	<R> Signal<R> accumulate(BiFunction<R,T,R> accumulater, final R initValue) {
 		Signal<R> signal = new Signal<R>();
 		this.subscribe(new ISignalAction<T>() {
 
