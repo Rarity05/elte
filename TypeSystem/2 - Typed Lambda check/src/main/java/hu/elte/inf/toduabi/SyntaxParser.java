@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  * @param <K> The type which we can compare lexical elements
  * @param <R> The return type
  */
-public class SyntaxParser<T, K, R> {
+public class SyntaxParser<T extends ILexicalItem<K>, K, R> {
 	
 	private Stack<R> expressions;
 	private ISyntaxCallback<T, K, R> callback;
@@ -22,6 +22,23 @@ public class SyntaxParser<T, K, R> {
 	
 	public enum ReturnType {
 		CONTINUE, RETURN, CHECK
+	}
+	public static class ReturnWrapper {
+		private ReturnType type;
+		private int index;
+		
+		public ReturnWrapper(ReturnType type, int index) {
+			this.type = type;
+			this.index = index;
+		}
+		
+		public ReturnType getType() {
+			return this.type;
+		}
+		
+		public int getIndex() {
+			return this.index;
+		}
 	}
 	
 	public SyntaxParser(HashMap<ArrayList<K>, String> rules, ISyntaxCallback<T, K, R> callback) {
@@ -33,11 +50,11 @@ public class SyntaxParser<T, K, R> {
 		this.expressions = new Stack<R>();
 		Stack<T> stack = new Stack<T>();
 		
-		for (int i = 0; i < tokens.size(); i++) {			
+		for (int i = 0; i < tokens.size(); /*no-operation*/) {			
 			stack.push(tokens.get(i));
 			K nextType = (i+1 < tokens.size()) ? tokens.get(i+1).getType() : null;
-			
-			checkAndReduce(stack, nextType);
+			ArrayList<T> remainingTokens = new ArrayList<T>(tokens.subList(i, tokens.size()-1));
+			i += checkAndReduce(stack, remainingTokens, nextType);
 		}
 		
 		if (!stack.isEmpty()) {
@@ -51,7 +68,7 @@ public class SyntaxParser<T, K, R> {
 		return expressions.pop();
 	}
 
-	private <T extends ILexicalItem<K>> void checkAndReduce(Stack<T> stack, K nextType) throws SyntaxParserException {
+	private <T extends ILexicalItem<K>> int checkAndReduce(Stack<T> stack, ArrayList<T> remainingTokens, K nextType) throws SyntaxParserException {
 		
 		Stack<T> prefixStack = new Stack<T>();		
 		/**
@@ -64,14 +81,13 @@ public class SyntaxParser<T, K, R> {
 			ArrayList<T> prefixList = new ArrayList<T>(prefixStack);
 			String rule = getRule(prefixList);
 			if (rule != null) {
-				ReturnType retVal = callback.foundRule(rule, prefixList, stack, nextType, this.expressions);
-				switch (retVal) {
+				ReturnWrapper retVal = callback.foundRule(rule, prefixList, stack, remainingTokens, nextType, this.expressions);
+				switch (retVal.getType()) {
 					case CONTINUE: continue;
-					case RETURN: return;
-					case CHECK: checkAndReduce(stack, nextType); break;
+					case RETURN: return retVal.getIndex();
+					case CHECK: return checkAndReduce(stack, remainingTokens, nextType);
 					default: break;
 				}
-				return;
 			}
 		}
 		
@@ -81,6 +97,8 @@ public class SyntaxParser<T, K, R> {
 		while (!prefixStack.isEmpty()) {
 			stack.push(prefixStack.pop());
 		}
+		
+		return 1;
 	}
 
 	/**
