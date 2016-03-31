@@ -103,10 +103,29 @@ public class LexParser {
 	 * @author I321357
 	 *
 	 */
-	public class Item {
+	public static class Item implements ILexicalItem<Type> {
 		private String token;
 		private Type type;
 		
+         @Override
+         public int hashCode() {
+             int sum = 0;
+             for (int i=0; i<this.token.length(); i++) {
+                 sum += this.token.charAt(i);
+             }
+             return sum;
+         }
+
+         @Override
+         public boolean equals(Object _other) {
+             if (!(_other instanceof Item)) {
+                 return false;
+             }
+             
+             Item other = (Item) _other; 
+             return this.token.equals(other.getToken()) && this.type.equals(other.getType());
+         }
+
 		public Item(String token, Type type) {
 			this.token = token;
 			this.type = type;
@@ -115,6 +134,7 @@ public class LexParser {
 		public String getToken() {
 			return this.token;
 		}
+		
 		public Type getType() {
 			return this.type;
 		}
