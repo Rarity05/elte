@@ -5,12 +5,16 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import hu.elte.inf.toduabi.LexParser.Item;
+import hu.elte.inf.toduabi.LexParser.Type;
 
 @RunWith(Parameterized.class)
 public class TestParserSuccess {
@@ -21,7 +25,7 @@ public class TestParserSuccess {
         	{"x:Bool |- (\\y:Nat.x x): Nat -> Bool"}
        	 });
     }
-	private LexParser lexParser;
+	private LexParser<LexParser.Item, LexParser.Type> lexParser;
 	private String input;
 	
 	public TestParserSuccess(String input) {
@@ -30,7 +34,7 @@ public class TestParserSuccess {
 	
 	@Before
 	public void setUp() throws Exception {
-		this.lexParser = new LexParser();	
+		this.lexParser = LexParser.createDefault();	
 	}
 
 	@Test
@@ -56,7 +60,7 @@ public class TestParserSuccess {
 		r1.add(new LexParser.Item("Bool", LexParser.Type.TYPE));
 		
 		try {
-			ArrayList<LexParser.Item> tokens = this.lexParser.parse(this.input);
+			ArrayList<LexParser.Item> tokens = filterInput(this.lexParser.parse(this.input));
 			
 			Object[] arr1 = r1.toArray();
 			Object[] arr2 = tokens.toArray();
@@ -64,6 +68,37 @@ public class TestParserSuccess {
 		} catch (LexParserException e) {
 			fail(e.getLocalizedMessage());
 		}
+	}
+	
+	/**
+	 * Filters all SPACE characters before and after a FILTER elements
+	 * @param input
+	 * @return
+	 */
+	private ArrayList<Item> filterInput(ArrayList<Item> items) {
+		HashSet<Type> filters = new HashSet<LexParser.Type>();
+		filters.add(Type.ARROW);
+		filters.add(Type.CONTEXT);
+		filters.add(Type.COLON);
+		
+		ArrayList<Item> retVal = new ArrayList<Item>();
+		for (int i = 0; i < items.size(); i++) {
+			Item item = items.get(i);
+			if (item.getType() == Type.APPLICATION) {
+				try {
+					if (filters.contains(items.get(i-1).getType()) || filters.contains(items.get(i+1).getType())) {
+						continue;
+					} else {
+						retVal.add(item);
+					}
+				} catch (Exception e) {
+					retVal.add(item);
+				}
+			} else {
+				retVal.add(item);
+			}
+		}
+		return retVal;
 	}
 
 }
