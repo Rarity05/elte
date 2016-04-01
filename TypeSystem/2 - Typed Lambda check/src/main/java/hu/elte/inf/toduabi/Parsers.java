@@ -2,14 +2,20 @@ package hu.elte.inf.toduabi;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Stack;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import hu.elte.inf.toduabi.LexParser.Item;
 import hu.elte.inf.toduabi.SyntaxParser.ReturnType;
 import hu.elte.inf.toduabi.SyntaxParser.ReturnWrapper;
 
 public class Parsers {
-	
+
+	/**
+	 * The typeParser's syntax callback
+	 */
 	private static ISyntaxCallback<Parsers.LexItem, Parsers.Type, IType> syntaxCallback = new ISyntaxCallback<Parsers.LexItem, Parsers.Type, IType>() {
 
 		@SuppressWarnings("unchecked")
@@ -51,7 +57,9 @@ public class Parsers {
 				stack.push((T) new Parsers.LexItem("R", Parsers.Type.RTYPE));
 			}
 			/**
-			 * 
+			 * Found parenthesis rule
+			 * - We don't have to do anything, the parenthesis are removed
+			 * : Push back the RTYPE
 			 */
 			else if (rule.equals("ParenthesisType")) {
 				if (prefixList.size() != 3 || expressions.size() < 1) {
@@ -84,9 +92,81 @@ public class Parsers {
 		}
 		
 	};
+	/**
+	 * Rules for the typeParser
+	 */
 	private final static HashMap<ArrayList<Type>, String> typeParserRules = new HashMap<ArrayList<Type>, String>();
+	/**
+	 * The typeParser
+	 */
 	public final static SyntaxParser<LexItem, Type, IType> typeParser = new SyntaxParser<LexItem, Type, IType>(typeParserRules, syntaxCallback);
+	
+	/**
+	 * The lexParser
+	 */
 	public final static LexParser<LexItem, Type> lexParser = new LexParser<LexItem, Type>();
+	
+	/**
+	 * The typeContextParser
+	 *
+	 */
+	public static class typeContextParser {
+		public static TypeContext parse(ArrayList<LexItem> tokens) throws SyntaxParserException {
+			
+			/**
+			 * Split the tokens at the 'COMMA' lexical item
+			 */
+			ArrayList<ArrayList<LexItem>> splitted = new ArrayList<ArrayList<LexItem>>();
+			Stream<LexItem> tokenStream = tokens.stream();
+			tokenStream.forEach(token -> {
+				if (token.getType() == Type.COMMA) {
+					splitted.add(new ArrayList<LexItem>());
+				} else {
+					if (splitted.size() == 0) {
+						splitted.add(new ArrayList<LexItem>());
+					}
+					splitted.get(splitted.size()-1).add(token);
+				}
+			});
+			
+			/**
+			 * Create LambdaVariables from the tokens
+			 */
+			Stream<ArrayList<LexItem>> splittedStream = splitted.stream();
+			Stream<LambdaVariable> variableStream = splittedStream.map(splittedTokens -> {
+				if (splittedTokens.size() < 3) {
+					return null;
+				}
+				
+				LexItem variable = splittedTokens.get(0);
+				LexItem colon = splittedTokens.get(1);
+				if (!variable.getType().equals(Type.VARIABLE) || !colon.getType().equals(Type.COLON)) {
+					return null;
+				}
+				
+				ArrayList<LexItem> typeTokens = new ArrayList<LexItem>(splittedTokens.subList(2, splittedTokens.size()));
+				IType type;
+				try {
+					type = typeParser.parse(typeTokens);
+				} catch (Exception e) {
+					return null;
+				}
+				
+				return new LambdaVariable(variable.getToken().toCharArray()[0], type);
+			});
+			
+			
+			HashSet<LambdaVariable> variableSet = new HashSet<LambdaVariable>(variableStream.collect(Collectors.toSet()));
+			if (variableSet.contains(null)) {
+				throw new SyntaxParserException("Could not parse type context");
+			};
+			
+			/**
+			 * Return with the type context
+			 */
+			return new TypeContext(variableSet);
+		}
+	}
 	
 	/**
 	 * The prefix R means that the item has been reduced
@@ -94,7 +174,7 @@ public class Parsers {
 	 *
 	 */
 	public enum Type {
-		LAMBDA, VARIABLE, RVARIABLE, APPLICATION, DOT, OPEN, CLOSE, ARROW, COLON, CONTEXT, TYPE, RTYPE
+		LAMBDA, VARIABLE, RVARIABLE, APPLICATION, DOT, OPEN, CLOSE, ARROW, COLON, COMMA, CONTEXT, TYPE, RTYPE
 	}
 	public static class LexItem implements ILexicalItem<Type> {
 		private String token;
@@ -146,6 +226,7 @@ public class Parsers {
 		}
 		lexParser.addItem(new LexItem(" ", Type.APPLICATION));
 		lexParser.addItem(new LexItem(".", Type.DOT));
+		lexParser.addItem(new LexItem(",", Type.COMMA));
 		lexParser.addItem(new LexItem("(", Type.OPEN));
 		lexParser.addItem(new LexItem(")", Type.CLOSE));
 		
