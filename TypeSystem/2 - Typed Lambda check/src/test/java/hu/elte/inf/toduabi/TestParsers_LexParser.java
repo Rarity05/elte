@@ -17,7 +17,7 @@ import hu.elte.inf.toduabi.LexParser.Item;
 import hu.elte.inf.toduabi.LexParser.Type;
 
 @RunWith(Parameterized.class)
-public class TestParserSuccess {
+public class TestParsers_LexParser {
 	
 	@Parameters
     public static Collection<Object[]> data() {
@@ -28,7 +28,7 @@ public class TestParserSuccess {
 	private LexParser<LexParser.Item, LexParser.Type> lexParser;
 	private String input;
 	
-	public TestParserSuccess(String input) {
+	public TestParsers_LexParser(String input) {
 		this.input = input;
 	}
 	
