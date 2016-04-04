@@ -204,7 +204,7 @@ public class Parsers {
 
         @Override
         public boolean equals(Object _other) {
-            if (!(_other instanceof Item)) {
+            if (!(_other instanceof LexItem)) {
                 return false;
             }
             
