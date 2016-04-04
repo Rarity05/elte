@@ -53,7 +53,7 @@ public class SyntaxParser<T extends ILexicalItem<K>, K, R> {
 		for (int i = 0; i < tokens.size(); /*no-operation*/) {			
 			stack.push(tokens.get(i));
 			K nextType = (i+1 < tokens.size()) ? tokens.get(i+1).getType() : null;
-			ArrayList<T> remainingTokens = new ArrayList<T>(tokens.subList(i, tokens.size()-1));
+			ArrayList<T> remainingTokens = (nextType == null) ? new ArrayList<T>() : new ArrayList<T>(tokens.subList(i+1, tokens.size()-1));
 			i += checkAndReduce(stack, remainingTokens, nextType);
 		}
 		
