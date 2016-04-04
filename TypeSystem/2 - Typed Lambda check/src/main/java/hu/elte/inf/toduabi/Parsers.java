@@ -105,6 +105,117 @@ public class Parsers {
 	 * The expression syntax parser
 	 */
 	
+	 // The expressionParsers' syntax callback
+	private static ISyntaxCallback<LexItem, Type, ILambdaExpression> expressionSyntaxCallback = new ISyntaxCallback<LexItem, Type, ILambdaExpression>() {
+		@SuppressWarnings("unchecked")
+		public <T extends ILexicalItem<Type>> ReturnWrapper foundRule(String rule, ArrayList<T> prefixList,
+				Stack<T> stack, ArrayList<T> remainingTokens, Type nextType, Stack<ILambdaExpression> expressions) throws SyntaxParserException {
+			
+			/**
+			 * Found variable rule
+			 * - Check if its a typed variable or not
+			 * : Create the LambdaVariable as such
+			 * : If typed variable then return with the type's token length
+			 *   otherwise
+			 *   : nexType is ')' or 'null' return check
+			 *   : otherwise return 1
+			 */
+			if (rule.equals("Variable")) {
+				if (prefixList.size() != 1) {
+					throw new RuntimeException("SyntaxParser: Variable rule internal error");
+				}
+				
+				if (nextType == Type.COLON) {
+					// It's a typed variable
+					int dotIndex = remainingTokens.indexOf(new LexItem(".", Type.DOT));
+					if (dotIndex == -1) {
+						throw new SyntaxParserException("Invalid typed variable");
+					}
+					
+					ArrayList<LexItem> typeTokens = new ArrayList<LexItem>(((ArrayList<LexItem>)remainingTokens).subList(1, dotIndex));
+					IType type = typeParser.parse(typeTokens);
+					
+					expressions.push(new LambdaVariable(prefixList.get(0).getToken().toCharArray()[0], type));
+					stack.push((T) new LexItem("R", Type.RVARIABLE));
+					
+					return new ReturnWrapper(ReturnType.RETURN, dotIndex+1);
+				} else {
+					expressions.push(new LambdaVariable(prefixList.get(0).getToken().toCharArray()[0], null));
+					stack.push((T) new LexItem("R", Type.EXPRESSION));
+				}
+			}
+			/**
+			 * Found abstraction rule 
+			 */
+			else if (rule.equals("Abstraction")) {
+				if (prefixList.size() != 4 || expressions.size() < 2) {
+					throw new RuntimeException("SyntaxParser: Abstraction rule internal error");
+				}
+				
+				ILambdaExpression expression = expressions.pop();
+				ILambdaExpression variable = expressions.pop();
+				
+				if (!variable.getClass().equals(LambdaVariable.class)) {
+					throw new RuntimeException("SyntaxParser: Abstraction rule internal error");
+				}
+				
+				expressions.push(new LambdaAbstraction((LambdaVariable)variable, expression));
+				stack.push((T) new LexItem("R", Type.EXPRESSION));
+			}
+			/**
+			 * Found application rule
+			 */
+			else if (rule.equals("Application")) {
+				if (prefixList.size() != 3 || expressions.size() < 2) {
+					throw new RuntimeException("SyntaxParser: Abstraction rule internal error");
+				}
+				
+				
+				if (nextType == null || nextType == Parsers.Type.CLOSE) {
+					ILambdaExpression expressionRight = expressions.pop();
+					ILambdaExpression expressionLeft = expressions.pop();
+				
+					expressions.push(new LambdaApplication(expressionLeft, expressionRight));
+					stack.push((T) new LexItem("R", Type.EXPRESSION));
+				}
+			}
+			/**
+			 * Found parenthesis rule
+			 */
+			else if (rule.equals("Parenthesis")) {
+				if (prefixList.size() != 3 || expressions.size() < 1) {
+					throw new RuntimeException("SyntaxParser: ParenthesisType internal error");
+				}
+				
+				stack.push((T) new Parsers.LexItem("R", Parsers.Type.EXPRESSION));
+			}
+			/**
+			 * Found expression
+			 */
+			else if (rule.equals("Expression")) {
+				if (stack.isEmpty() && nextType == null) {
+					return new ReturnWrapper(ReturnType.RETURN, 1);
+				} else {
+					return new ReturnWrapper(ReturnType.CONTINUE, 0);
+				}
+			} else {
+				throw new RuntimeException("SyntaxParser: undefined TypeParser rule: " + rule);
+			}
+			
+			if (nextType == null || nextType == Parsers.Type.CLOSE) {
+				return new ReturnWrapper(ReturnType.CHECK, 0);
+			} else {
+				return new ReturnWrapper(ReturnType.RETURN, 1);
+			}
+		}
+	};
+	
+	// Rules for the expressionParser
+	private final static HashMap<ArrayList<Type>, String> expressionParserRules = new HashMap<ArrayList<Type>, String>();
+	
+	// The expressionParser
+	public final static SyntaxParser<LexItem, Type, ILambdaExpression> expressionParser = new SyntaxParser<LexItem, Type, ILambdaExpression>(expressionParserRules, expressionSyntaxCallback);
+	
 	/**
 	 * The lexParser
 	 */
@@ -172,7 +283,7 @@ public class Parsers {
 	 *
 	 */
 	public enum Type {
-		LAMBDA, VARIABLE, RVARIABLE, APPLICATION, DOT, OPEN, CLOSE, ARROW, COLON, COMMA, CONTEXT, TYPE, RTYPE
+		LAMBDA, VARIABLE, EXPRESSION, RVARIABLE, APPLICATION, DOT, OPEN, CLOSE, ARROW, COLON, COMMA, CONTEXT, TYPE, RTYPE
 	}
 	public static class LexItem implements ILexicalItem<Type> {
 		private String token;
@@ -261,5 +372,38 @@ public class Parsers {
 		ArrayList<Type> T4 = new ArrayList<Type>();
 		T4.add(Type.RTYPE);
 		typeParserRules.put(T4, "ReducedType");
+		
+		/**
+		 *  EXPRESSION rules: Expression = Variable |
+		 *  								\ VARIABLE : TYPE . EXPRESSION |
+		 *  								EXPRESSION ' ' EXPRESSION |
+		 *  								( EXPRESSION )
+		 */
+		ArrayList<Type> E1 = new ArrayList<Type>();
+		E1.add(Type.VARIABLE);
+		expressionParserRules.put(E1, "Variable");
+		
+		ArrayList<Type> E2 = new ArrayList<Type>();
+		E2.add(Type.EXPRESSION);
+		E2.add(Type.DOT);
+		E2.add(Type.RVARIABLE);
+		E2.add(Type.LAMBDA);
+		expressionParserRules.put(E2, "Abstraction");
+		
+		ArrayList<Type> E3 = new ArrayList<Type>();
+		E3.add(Type.EXPRESSION);
+		E3.add(Type.APPLICATION);
+		E3.add(Type.EXPRESSION);
+		expressionParserRules.put(E3, "Application");
+		
+		ArrayList<Type> E4 = new ArrayList<Type>();
+		E4.add(Type.CLOSE);
+		E4.add(Type.EXPRESSION);
+		E4.add(Type.OPEN);
+		expressionParserRules.put(E4, "Parenthesis");
+		
+		ArrayList<Type> E5 = new ArrayList<Type>();
+		E5.add(Type.EXPRESSION);
+		expressionParserRules.put(E5, "Expression");
 	}
 }
