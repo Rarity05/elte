@@ -14,6 +14,32 @@ import hu.elte.inf.toduabi.SyntaxParser.ReturnWrapper;
 public class Parsers {
 
 	/**
+	 * The typed expression parser
+	 */
+	
+	public static class typedExpressionParser {
+		public static TypedExpression parse(ArrayList<LexItem> tokens) throws SyntaxParserException {
+			int contextIndex = tokens.indexOf(new LexItem("|-", Type.CONTEXT));
+			int typeIndex = tokens.lastIndexOf(new LexItem(":", Type.COLON));
+			
+			if (contextIndex == -1 || typeIndex <= contextIndex) {
+				throw new SyntaxParserException("SyntaxParser: structural error");
+			}
+			
+			ArrayList<LexItem> contextTokens = new ArrayList<LexItem>(tokens.subList(0, contextIndex));
+			TypeContext typeContext = typeContextParser.parse(contextTokens);
+			
+			ArrayList<LexItem> expressionTokens = new ArrayList<LexItem>(tokens.subList(contextIndex+1, typeIndex));
+			ILambdaExpression expression = expressionParser.parse(expressionTokens);
+			
+			ArrayList<LexItem> typeTokens = new ArrayList<LexItem>(tokens.subList(typeIndex+1, tokens.size()));
+			IType type = typeParser.parse(typeTokens);
+			
+			return new TypedExpression(typeContext, expression, type);
+		}
+	}
+	
+	/**
 	 * The type syntax parser 
 	 */
 	
