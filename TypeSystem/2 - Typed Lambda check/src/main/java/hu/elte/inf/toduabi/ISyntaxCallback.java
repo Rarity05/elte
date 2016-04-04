@@ -14,7 +14,8 @@ public interface ISyntaxCallback<T extends ILexicalItem<K>, K, R> {
 	 * @param nextType the next lexical element's type (outside the sub-stack)
 	 * @param expressions container for instantiated types (must contain a single element after when the nextType is null)
 	 * @return
+	 * @throws SyntaxParserException 
 	 */
-	<T extends ILexicalItem<K>> SyntaxParser.ReturnWrapper foundRule(String rule, ArrayList<T> prefixList, Stack<T> stack, ArrayList<T> remainingTokens, K nextType, Stack<R> expressions);
+	<T extends ILexicalItem<K>> SyntaxParser.ReturnWrapper foundRule(String rule, ArrayList<T> prefixList, Stack<T> stack, ArrayList<T> remainingTokens, K nextType, Stack<R> expressions) throws SyntaxParserException;
 
 }
