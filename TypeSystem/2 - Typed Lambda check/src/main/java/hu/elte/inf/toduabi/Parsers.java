@@ -14,9 +14,11 @@ import hu.elte.inf.toduabi.SyntaxParser.ReturnWrapper;
 public class Parsers {
 
 	/**
-	 * The typeParser's syntax callback
+	 * The type syntax parser 
 	 */
-	private static ISyntaxCallback<Parsers.LexItem, Parsers.Type, IType> syntaxCallback = new ISyntaxCallback<Parsers.LexItem, Parsers.Type, IType>() {
+	
+	//The typeParser's syntax callback
+	private static ISyntaxCallback<Parsers.LexItem, Parsers.Type, IType> typeSyntaxCallback = new ISyntaxCallback<Parsers.LexItem, Parsers.Type, IType>() {
 
 		@SuppressWarnings("unchecked")
 		@Override
@@ -92,14 +94,16 @@ public class Parsers {
 		}
 		
 	};
-	/**
-	 * Rules for the typeParser
-	 */
+
+	// Rules for the typeParser
 	private final static HashMap<ArrayList<Type>, String> typeParserRules = new HashMap<ArrayList<Type>, String>();
+
+	// The typeParser
+	public final static SyntaxParser<LexItem, Type, IType> typeParser = new SyntaxParser<LexItem, Type, IType>(typeParserRules, typeSyntaxCallback);
+	
 	/**
-	 * The typeParser
+	 * The expression syntax parser
 	 */
-	public final static SyntaxParser<LexItem, Type, IType> typeParser = new SyntaxParser<LexItem, Type, IType>(typeParserRules, syntaxCallback);
 	
 	/**
 	 * The lexParser
@@ -113,9 +117,7 @@ public class Parsers {
 	public static class typeContextParser {
 		public static TypeContext parse(ArrayList<LexItem> tokens) throws SyntaxParserException {
 			
-			/**
-			 * Split the tokens at the 'COMMA' lexical item
-			 */
+			// Split the tokens at the 'COMMA' lexical item
 			ArrayList<ArrayList<LexItem>> splitted = new ArrayList<ArrayList<LexItem>>();
 			Stream<LexItem> tokenStream = tokens.stream();
 			tokenStream.forEach(token -> {
@@ -129,9 +131,7 @@ public class Parsers {
 				}
 			});
 			
-			/**
-			 * Create LambdaVariables from the tokens
-			 */
+			// Create LambdaVariables from the tokens
 			Stream<ArrayList<LexItem>> splittedStream = splitted.stream();
 			Stream<LambdaVariable> variableStream = splittedStream.map(splittedTokens -> {
 				if (splittedTokens.size() < 3) {
@@ -161,9 +161,7 @@ public class Parsers {
 				throw new SyntaxParserException("Could not parse type context");
 			};
 			
-			/**
-			 * Return with the type context
-			 */
+			// Return with the type context
 			return new TypeContext(variableSet);
 		}
 	}
