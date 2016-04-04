@@ -31,7 +31,7 @@ public class LambdaVariable implements ILambdaExpression {
 		}
 		
 		LambdaVariable other = (LambdaVariable) _other; 
-		return this.variable == other.getVariable() && this.type.equals(other.getType());
+		return this.variable == other.getVariable() && ((this.type == null && other.getType() == null) || this.type.equals(other.getType()));
 	}
 	
 	@Override
