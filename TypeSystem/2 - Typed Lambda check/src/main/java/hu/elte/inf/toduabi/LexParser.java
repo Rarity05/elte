@@ -67,10 +67,14 @@ public class LexParser<T extends ILexicalItem<K>, K> {
 		String subStr;
 		String token;
 		for (T item : this.items) {
-			token = item.getToken();
-			subStr = input.substring(0, token.length());
-			if (token.equals(subStr)) {
-				return item;
+			try {
+				token = item.getToken();
+				subStr = input.substring(0, token.length());
+				if (token.equals(subStr)) {
+					return item;
+				}
+			} catch (Exception e) {
+				continue;
 			}
 		}
 		return null;
