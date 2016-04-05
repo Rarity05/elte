@@ -60,7 +60,7 @@ public class TestClass_TypeCheck {
 		} catch (LexParserException | SyntaxParserException e) {
 			assertTrue(this.input.equals(this.output));
 		} catch (TypeCheckException e) {
-			e.getMessage().equals(this.output);
+			assertTrue(e.getMessage().equals(this.output));
 		}		
 	}
 }
