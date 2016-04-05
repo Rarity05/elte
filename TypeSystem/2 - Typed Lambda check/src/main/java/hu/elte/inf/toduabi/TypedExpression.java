@@ -22,4 +22,9 @@ public class TypedExpression {
 	public IType getType() {
 		return this.type;
 	}
+	
+	@Override
+	public String toString() {
+		return this.expression.toString() + ":" + this.type.toString();
+	}
 }
