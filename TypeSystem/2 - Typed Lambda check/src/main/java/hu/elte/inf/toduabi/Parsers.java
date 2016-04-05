@@ -167,6 +167,7 @@ public class Parsers {
 				} else {
 					expressions.push(new LambdaVariable(prefixList.get(0).getToken().toCharArray()[0], null));
 					stack.push((T) new LexItem("R", Type.EXPRESSION));
+					return new ReturnWrapper(ReturnType.CHECK, 0);
 				}
 			}
 			/**
@@ -196,13 +197,11 @@ public class Parsers {
 				}
 				
 				
-				if (nextType == null || nextType == Parsers.Type.CLOSE) {
-					ILambdaExpression expressionRight = expressions.pop();
-					ILambdaExpression expressionLeft = expressions.pop();
+				ILambdaExpression expressionRight = expressions.pop();
+				ILambdaExpression expressionLeft = expressions.pop();
 				
-					expressions.push(new LambdaApplication(expressionLeft, expressionRight));
-					stack.push((T) new LexItem("R", Type.EXPRESSION));
-				}
+				expressions.push(new LambdaApplication(expressionLeft, expressionRight));
+				stack.push((T) new LexItem("R", Type.EXPRESSION));
 			}
 			/**
 			 * Found parenthesis rule
@@ -218,10 +217,22 @@ public class Parsers {
 			 * Found expression
 			 */
 			else if (rule.equals("Expression")) {
-				if (stack.isEmpty() && nextType == null) {
-					return new ReturnWrapper(ReturnType.RETURN, 1);
+				if (stack.isEmpty()) {
+					if (nextType == null) {
+						return new ReturnWrapper(ReturnType.RETURN, 1);
+					} else {
+						stack.push((T) new LexItem("R", Type.EXPRESSION));
+					}
 				} else {
-					return new ReturnWrapper(ReturnType.CONTINUE, 0);
+					LexItem peek = (LexItem) stack.peek();
+					if (peek.getType().equals(Type.APPLICATION) || ((nextType == null || nextType.equals(Type.CLOSE)) && peek.getType().equals(Type.DOT))) {
+						return new ReturnWrapper(ReturnType.CONTINUE, 0);
+					} else {
+						stack.push((T) new LexItem("R", Type.EXPRESSION));
+						if (peek.getType() == Type.OPEN) {
+							return new ReturnWrapper(ReturnType.RETURN, 1);
+						}
+					}
 				}
 			} else {
 				throw new RuntimeException("SyntaxParser: undefined TypeParser rule: " + rule);
@@ -370,6 +381,11 @@ public class Parsers {
             
             LexItem other = (LexItem) _other; 
             return this.token.equals(other.getToken()) && this.type.equals(other.getType());
+        }
+        
+        @Override
+        public String toString() {
+        	return this.token + ":" + this.getType().toString();
         }
 		
 	}
