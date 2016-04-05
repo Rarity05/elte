@@ -54,4 +54,9 @@ public class LambdaVariable implements ILambdaExpression {
 	public ILambdaExpression Substitute(LambdaVariable variable, ILambdaExpression expression) {
 		return (this.equals(variable)) ? expression : this;
 	}
+
+	@Override
+	public IType deductType(TypeContext typeContext) {
+		return (this.type == null) ? typeContext.getTypeForVariable(this.variable) : this.type;
+	}
 }
