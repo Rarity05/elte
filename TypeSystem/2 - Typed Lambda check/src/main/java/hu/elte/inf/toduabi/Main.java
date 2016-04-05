@@ -12,7 +12,12 @@ public class Main {
 	    String input;
 	    while ((input = in.readLine()) != null && input.length() != 0) {
 		    try {
-		    } catch (Exception e) {
+		    	TypedExpression expression = TypeCheck.parseAndCheck(input);
+		    	System.out.println("OK: " + expression.toString());
+		    } catch (LexParserException | SyntaxParserException e) {
+		    	System.out.println("ERROR: " + input);
+		    } catch (TypeCheckException e) {
+		    	System.out.println("ERROR: " + e.getMessage());
 		    }
 	    }
 	}
