@@ -36,7 +36,11 @@ public class LambdaVariable implements ILambdaExpression {
 	
 	@Override
 	public String toString() {
-		return Character.toString(this.variable);
+		String retVal = Character.toString(this.variable);
+		if (this.type != null) {
+			retVal += ":" + this.type.toString();
+		}
+		return retVal;
 	}
 
 	public HashSet<LambdaVariable> getFreeVariables() {
@@ -56,7 +60,11 @@ public class LambdaVariable implements ILambdaExpression {
 	}
 
 	@Override
-	public IType deductType(TypeContext typeContext) {
-		return (this.type == null) ? typeContext.getTypeForVariable(this.variable) : this.type;
+	public IType deductType(TypeContext typeContext) throws TypeCheckException {
+		IType retVal = (this.type == null) ? typeContext.getTypeForVariable(this.variable) : this.type;
+		if (retVal == null) {
+			throw new TypeCheckException(this.toString());
+		}
+		return retVal;
 	}
 }
