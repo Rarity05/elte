@@ -7,7 +7,6 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import hu.elte.inf.toduabi.LexParser.Item;
 import hu.elte.inf.toduabi.SyntaxParser.ReturnType;
 import hu.elte.inf.toduabi.SyntaxParser.ReturnWrapper;
 
@@ -245,7 +244,31 @@ public class Parsers {
 	/**
 	 * The lexParser
 	 */
-	public final static LexParser<LexItem, Type> lexParser = new LexParser<LexItem, Type>();
+	public final static LexParser<LexItem, Type> lexParser = new LexParser<LexItem, Type>() {
+		@Override
+		public ArrayList<LexItem> parse(String input) throws LexParserException {
+			ArrayList<LexItem> result = super.parse(input);
+			ArrayList<LexItem> filtered = new ArrayList<LexItem>();
+			
+			HashSet<Parsers.Type> filterWhen = new HashSet<Parsers.Type>();
+			filterWhen.add(Parsers.Type.ARROW);
+			filterWhen.add(Parsers.Type.COLON);
+			filterWhen.add(Parsers.Type.CONTEXT);
+			filterWhen.add(Parsers.Type.COMMA);
+			
+			
+			for (int i=0; i<result.size(); i++) {
+				LexItem current = result.get(i);
+				Parsers.Type nextType = (i+1 < result.size()) ? result.get(i+1).getType() : null;
+				Parsers.Type prevType = (i == 0) ? null : result.get(i-1).getType();
+				if (!current.getType().equals(Parsers.Type.APPLICATION) || (!filterWhen.contains(nextType) && !filterWhen.contains(prevType))) {
+					filtered.add(current);
+				}
+			}
+			
+			return filtered;
+		}
+	};
 	
 	/**
 	 * The typeContextParser
