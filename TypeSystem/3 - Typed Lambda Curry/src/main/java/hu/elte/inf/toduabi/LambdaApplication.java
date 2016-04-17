@@ -53,15 +53,6 @@ public class LambdaApplication implements ILambdaExpression {
 	}
 
 	@Override
-	public ILambdaExpression Substitute(LambdaVariable variable, ILambdaExpression expression)
-			throws LambdaNormalizeException {
-		ILambdaExpression expA = this.expressionA.Substitute(variable, expression);
-		ILambdaExpression expB = this.expressionB.Substitute(variable, expression);
-		
-		return new LambdaApplication(expA, expB);
-	}
-
-	@Override
 	public IType deductType(TypeContext typeContext) throws TypeCheckException {
 		IType leftType;
 		IType rightType;

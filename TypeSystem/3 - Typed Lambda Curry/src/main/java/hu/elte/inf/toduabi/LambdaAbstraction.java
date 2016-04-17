@@ -51,27 +51,6 @@ public class LambdaAbstraction implements ILambdaExpression {
 	}
 
 	@Override
-	public ILambdaExpression Substitute(LambdaVariable variable, ILambdaExpression expression) throws LambdaNormalizeException {
-		HashSet<LambdaVariable> free = expression.getFreeVariables();
-		if (this.variable.equals(variable)) {
-			return this;
-		} else if (!free.contains(this.variable)) {
-			ILambdaExpression exp = this.expression.Substitute(variable, expression);
-			return new LambdaAbstraction(this.variable, exp);
-		} else {
-			/*
-			free.add(variable);
-			LambdaVariable newVariable = SharedConstants.getNonConflictVariable(free);
-			ILambdaExpression expAlpha = this.expression.Substitute(this.variable, newVariable);
-			ILambdaExpression exp = expAlpha.Substitute(variable, expression);
-			
-			return new LambdaAbstraction(newVariable, exp);
-			*/
-			return null;
-		}		
-	}
-
-	@Override
 	public IType deductType(TypeContext typeContext) throws TypeCheckException {
 		//if (typeContext.getVariables().contains(this.variable.getVariable())) {
 		//	return null;
