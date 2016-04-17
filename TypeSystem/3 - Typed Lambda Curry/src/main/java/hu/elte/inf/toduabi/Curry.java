@@ -35,7 +35,6 @@ public class Curry {
 			LambdaAbstraction abstraction = (LambdaAbstraction) expression;
 			IType left = new SingleType(getTypeVariable());
 			IType right = new SingleType(getTypeVariable());
-			IType next = new SingleType(getTypeVariable());
 			
 			HashSet<LambdaVariable> nContextSet = context.getSet();
 			LambdaVariable nVariable = new LambdaVariable(abstraction.getVariable().getVariable(), left);
@@ -44,7 +43,7 @@ public class Curry {
 			
 			
 			retVal.add(new Restriction(type, new ArrowType(left, right)));
-			List<Restriction> subResult = T(nContext, abstraction.getExpression(), next);
+			List<Restriction> subResult = T(nContext, abstraction.getExpression(), right);
 			retVal.addAll(subResult);
 			
 			return retVal;
