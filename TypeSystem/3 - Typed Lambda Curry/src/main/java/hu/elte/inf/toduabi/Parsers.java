@@ -150,20 +150,13 @@ public class Parsers {
 					throw new RuntimeException("SyntaxParser: Variable rule internal error");
 				}
 				
-				if (nextType == Type.COLON) {
-					// It's a typed variable
-					int dotIndex = remainingTokens.indexOf(new LexItem(".", Type.DOT));
-					if (dotIndex == -1) {
-						throw new SyntaxParserException("Invalid typed variable");
-					}
+				if (nextType == Type.DOT) {
+					// It's a lambda abstraction's variable
 					
-					ArrayList<LexItem> typeTokens = new ArrayList<LexItem>(((ArrayList<LexItem>)remainingTokens).subList(1, dotIndex));
-					IType type = typeParser.parse(typeTokens);
-					
-					expressions.push(new LambdaVariable(prefixList.get(0).getToken().toCharArray()[0], type));
+					expressions.push(new LambdaVariable(prefixList.get(0).getToken().toCharArray()[0], null));
 					stack.push((T) new LexItem("R", Type.RVARIABLE));
 					
-					return new ReturnWrapper(ReturnType.RETURN, dotIndex+1);
+					return new ReturnWrapper(ReturnType.RETURN, 2);
 				} else {
 					expressions.push(new LambdaVariable(prefixList.get(0).getToken().toCharArray()[0], null));
 					stack.push((T) new LexItem("R", Type.EXPRESSION));
@@ -440,7 +433,7 @@ public class Parsers {
 		
 		/**
 		 *  EXPRESSION rules: Expression = Variable |
-		 *  								\ VARIABLE : TYPE . EXPRESSION |
+		 *  								\ VARIABLE . EXPRESSION |
 		 *  								EXPRESSION ' ' EXPRESSION |
 		 *  								( EXPRESSION )
 		 */
