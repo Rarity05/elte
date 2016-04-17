@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>BE-AD Assignment Management System</title>
+    <link type="text/css" href="./bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Részletes leírás</h2></div>
+        </div>
+        <div style="margin-left:0px; background: lightgray">
+            <h1 id="a-feladat-rövid-összefoglalása">A feladat rövid összefoglalása</h1>
+            <p>A feladat egy olyan program készítése, amely típusinformációt nem tartalmazó <span class="math inline">\lambda</span>-kifejezések principális (legáltalánosabb) típusát tudja kikövetkeztetni egy adott típuskörnyezet mellett a Curry-típusrendszerben. A programnak a környezettel opcionálisan rendelkező kifejezéseket a szabványos bemenetről (standard input) kell tudnia beolvasnia, adott szöveges formátumban, akár többet is egyszerre, soronként egyet, valamint a hozzájuk kiszámított típust a szabványos kimenet (standard output) kell tudnia kiírnia, szintén szöveges formában, soronként egyet, a lentebb megadott formátumban.</p>
+            <h2 id="a-lambda-kifejezések-és-típuskörnyezetek-szintaktikája">A <span class="math inline">\lambda</span>-kifejezések és típuskörnyezetek szintaktikája</h2>
+            <p>Az értelmezhető <span class="math inline">\lambda</span>-kifejezéseket és típuskörnyezeteiket az alábbi nyelvtan segítségével írhatjuk le (EBNF):</p>
+            <pre><code>type              = type_variable | type, &quot;-&gt;&quot;, type | &quot;(&quot; type &quot;)&quot;;
+lambda_expression = variable
+                  | &quot;\&quot;, variable, &quot;.&quot;, lambda_expression
+                  | lambda_expression, &quot; &quot;, lambda_expression
+                  | &quot;(&quot;, lambda_expression, &quot;)&quot;;
+type_context      = variable, &quot;:&quot;, type, { &quot;,&quot;, variable, &quot;:&quot;, type };
+expression        = [ type_context ], &quot;|&quot;, lambda_expression;</code></pre>
+            <p>ahol:</p>
+            <ul>
+                <li>
+                    <p>a <code>type</code> a típusrendszerben megadható (jól formált) kifejezéseket jelenti. Ezeket tulajdonképpen a leírásukban is szereplő <code>type_variable</code>, valamint a függvényeket képző nyíl operátor segítségével tudjuk felépíteni. A <code>type_variable</code> nem szerepel a leírásban, itt lényegében az angol ábécé nagybetűit (például <code>A</code>), illetve annak indexelt változatait (<code>A1</code>) engedhetjük meg. A típusrendszerben eredetileg ezek a görög ábécé betűivel jelölődnek, de ettől most eltekintünk az implementáció egyszerűsítése érdekében. A típuskifejezésekben opcionális zárójelek is szerepelhetnek, valamint ezek el is hagyhatóak, ahol a függvénytípust képző operátort jobbasszociatívnak tekintjük.</p>
+                </li>
+                <li>
+                    <p>a <code>type_context</code> jelenti a típuskörnyezetet, amely a Church-típusos rendszerhez hasonlóan a <span class="math inline">\lambda</span>-kifejezésekben szereplő változók (<code>variable</code>) és a hozzájuk társított típuskifejezések (<code>type</code>). A <code>variable</code> az angol ábécé valamelyik kisbetűje (például <code>x</code>), illetve annak valamilyen indexelt változata (<code>x1</code>) lehet. A típuskörnyezet akár üres lehet, például zárt kifejezések esetében.</p>
+                </li>
+                <li>
+                    <p>a <code>lambda_expression</code> egy szintaktikailag helyes <span class="math inline">\lambda</span>-kifejezés, ahol a <code>\</code> segítségével jelöljük a <span class="math inline">\lambda</span> absztraktort és ehhez kapcsoljuk az általa kötött változót, hasonlóan a típus nélküli esethez. Az így kötött változók hatókörét jelentő <span class="math inline">\lambda</span>-kifejezést a <code>.</code> (pont) vezeti be. A <span class="math inline">\lambda</span>-kifejezésben az applikációt (függvényalkalmazást) a ` ` (szóköz) jelöli. A <span class="math inline">\lambda</span>-kifejezések körül opcionálisan zárójelek is szerepelhetnek. A redundáns zárójelek mindig elhagyhatóak, az absztrakciók és applikációk zárójelei esetén ez úgy történik, hogy az absztrakció műveletét jobbasszociatívnak, az applikációt pedig balasszociatívnak tekintjük, illetve az applikáció kötési erőssége a nagyobb.</p>
+                </li>
+                <li>
+                    <p>az <code>expression</code> foglalja végül össze a program soronkénti bemenetének, a felső szintű kifejezések formátumát. Itt a <code>|</code> szimbólum választja el egymástól a következtetés során felhasználható típusinformációkat (a típuskörnyezet kezdeti állapotát) és azt a <span class="math inline">\lambda</span>-kifejezést, amelynek meg akarjuk keresni a principális típusát a Curry-típusrendszerben.</p>
+                </li>
+            </ul>
+            <p>A fenti szabályok mentén a programnak tehát például az alábbi, szintaktikailag helyes, bemeneteket el kell tudnia fogadnia:</p>
+            <pre><code>x:A | x
+x:(A -&gt; B), y:A | x y
+y:C | \x.y</code></pre>
+            <p>viszont ezeket a bemeneteket hibásnak kell tekintenie:</p>
+            <pre><code>|
+x |
+x A |
+| \x.\y.\z.x z (y z</code></pre>
+            <h2 id="a-típuskikövetkeztetés-lépései">A típuskikövetkeztetés lépései</h2>
+            <p>A korábbiakban felvázolt szintaktikai követelményeket kielégítő lekérdezések feldolgozásához, vagyis egy adott típuskörnyezet ismeretében egy <span class="math inline">\lambda</span>-kifejezés principális típusának kiszámításához lényegében a következő lépéseket kell végrehajtanunk:</p>
+            <ul>
+                <li>
+                    <p>Ellenőrizzük a bemenetként kapott kifejezést, és csak akkor folytassuk vele a munkát, amikor az teljesíti a szintaktikai szabályokat. Vegyük észre, hogy ilyenkor tulajdonképpen nyílt <span class="math inline">\lambda</span>-kifejezéseket is el tudunk fogadni, mivel azok típusa meghatározható olyan esetekben, amikor a típuskörnyezetben van valamilyen információnk a kifejezés szabad változóiról.</p>
+                </li>
+                <li>
+                    <p>A kikövetkeztetéshez Wand és Robinson algoritmusait tudjuk alkalmazni, amelyek az alábbi két lépést alkotják:</p>
+                    <ul>
+                        <li>
+                            <p><em>Korlátozások generálása:</em> járjuk be a <span class="math inline">\lambda</span>-kifejezést annak szintaktikai szerkezete szerint a kapott típuskörnyezet és egy kezdeti, szabadon választott típuskifejezés segítségével. Majd a bejárás során a <span class="math inline">\lambda</span>-kifejezés felépítésétől függően keressük vissza a benne szereplő változók típusát a környezetből, bővítsük a típuskörnyezetet vagy a kezdeti típuskifejezésünket új típusváltozókkal, illetve szükség esetén vegyünk fel megszorításokat a típusok közti viszonyok leírására.</p>
+                        </li>
+                        <li>
+                            <p><em>Egységesítés:</em> az előző lépésben előállított korlátozásokat egyenként vegyük sorra és felhasználásukkal szerkesszünk meg egy helyettesítést. Egy helyettesítés azt írja le, hogy a típusban adott típusváltozókat milyen típuskifejezésekkel kell helyettesíteni. Ha itt ellentmondás ütközünk (például rekurzív helyettesítés alakulna ki ennek során), akkor az egységesítés nem lehetséges, vagyis a <span class="math inline">\lambda</span>-kifejezés típusa nem határozható meg.</p>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <p>Ezután a principális típust végül úgy tudjuk kiszámítani, hogy a korlátozások generálásánál megadott kezdeti típusban elvégezzünk az egységesítésből kapott helyettesítést. Természetesen ezt csak akkor tudjuk megtenni, ha az egységesítésnál nem futottunk még hibára.</p>
+                </li>
+            </ul>
+            <p>Ez alapján a következő kifejezések típusa tehát meghatározható:</p>
+            <pre><code>| \x.x
+y:A | \x.y
+y:A, z:C | (\x.y) z
+| (\f.\x.f (f x)) (\f.\x.f (f x))
+| \x.\y.\z.x z (y z)</code></pre>
+            <p>valamint tekintsünk néhány olyan példát is, amikor a típus már nem következtethető ki:</p>
+            <pre><code>| \x.y
+x:B -&gt; C | x y
+x:A | x x
+| \x.x x</code></pre>
+            <h2 id="kimenetek">Kimenetek</h2>
+            <p>Ha a programnak sikerül a fenti módon kiszámítania a kapott <span class="math inline">\lambda</span>-kifejezés típusát, akkor legyen a kimenet a következő:</p>
+            <pre><code>OK: type</code></pre>
+            <p>ahol a <code>type</code> helyén a bemenetként megadott kifejezés principális típusának megfelelő típuskifejezésnek kell megjelennie, teljesen zárójelezett alakban megadva (a kimenet egyértelműsége miatt).</p>
+            <p>Például:</p>
+            <pre><code>OK: (A -&gt; A)
+OK: (A -&gt; B)
+OK: A
+OK: ((K -&gt; K) -&gt; (K -&gt; K))
+OK: ((E -&gt; (G -&gt; F)) -&gt; ((E -&gt; G) -&gt; (E -&gt; F)))</code></pre>
+            <p>Amennyiben nem volt szintakailag helyes a bemenet vagy nem sikerült meghatározni a típust, a kimenet legyen a következő:</p>
+            <pre><code>ERROR: input_expression</code></pre>
+            <p>ahol az <code>input_expression</code> jelöli az eredetileg megadott kifejezést változatlan alakban, amelyet bemenetként megadtunk. Például:</p>
+            <pre><code>ERROR: | \x.y
+ERROR: x:B -&gt; C | x y
+ERROR: x:A | x x
+ERROR: | \x.x x</code></pre>
+            <h2 id="példák">Példák</h2>
+            <p>Összefoglalásképpen tekintsünk teljes példákat a bemenettel és a rájuk válaszolandó kimenettel együtt:</p>
+            <pre><code>| \x.y
+ERROR: | \x.y
+x:B -&gt; C | x y
+ERROR: x:B -&gt; C | x y
+x:A |- x x
+ERROR: x:A |- x x
+| \x.x x
+ERROR: | \x.x x
+| \x.x
+OK: (A -&gt; A)
+y:B | \x.y
+OK: (A -&gt; B)
+y:A, z:C | (\x.y) z
+OK: A
+| (\f.\x.f (f x)) (\f.\x.f (f x))
+OK: ((K -&gt; K) -&gt; (K -&gt; K))
+| \x.\y.\z.x z (y z)
+OK: ((E -&gt; (G -&gt; F)) -&gt; ((E -&gt; G) -&gt; (E -&gt; F)))</code></pre>
+            <h1 id="implementációs-részletek">Implementációs részletek</h1>
+            <p>A feladatot a következő négy programozási nyelv valamelyikén lehet megoldani: Haskell, Java, C++ és Python. A megoldásban lehetőség szerint törekedjünk a minél egyszerűbb, rövidebb (, minél kevesebb külső függőséget alkalmazó), ámde olvasható és érthető forráskód írására! Az egyes nyelveken készített implementációkkal kapcsolatos egyéb elvárásokat az alábbiakban foglaljuk röviden össze.</p>
+            <h2 id="haskell">Haskell</h2>
+            <p>Haskell nyelv esetében a beadott megoldásnak tartalmaznia kell egy <code>Main.hs</code> állományt, amelyben szerepel a főprogramként alkalmazható <code>main</code> akció. A programnak tehát a következőképpen fordíthatónak kell lennie:</p>
+            <pre><code>$ ghc --make Main.hs</code></pre>
+            <p>valamint a következőképpen pedig futtathatónak:</p>
+            <pre><code>$ echo &quot;| \x.x&quot; | ./Main
+OK: A -&gt; A</code></pre>
+            <p>Az esetlegesen alkalmazott nyelvi kiterjesztéseket a <code>LANGUAGE</code> pragma használatával soroljuk fel minden modul elején! Feltételezhetjük, hogy az ellenőrzésnél a GHC 7.8.3 és a Haskell Platform 2014.2.0.0 áll rendelkezésre.</p>
+            <h2 id="java">Java</h2>
+            <p>Java nyelv esetében két lehetőség adott. Az első esetben a beadott megoldás tartalmazhat egy <code>Main.java</code> állományt, ebben kell lennie egy <code>Main</code> osztálynak, ahol a <code>main()</code> metódus elérhető. A programnak ilyenkor tehát a következőképpen fordíthatónak kell lennie:</p>
+            <pre><code>$ javac Main.java</code></pre>
+            <p>valamint a következőképpen futtathatónak:</p>
+            <pre><code>$ echo &quot;| \x.x&quot; | java Main
+OK: A -&gt; A</code></pre>
+            <p>A másik esetben a beadott megoldás tartalmazhat egy <code>pom.xml</code> állományt, amely azt írja le, hogy Maven segítségével miként lehet fordítható és futtatható. A programnak ilyenkor tehát a következőképpen fordíthatónak kell lennie:</p>
+            <pre><code>$ mvn package</code></pre>
+            <p>valamint a következőképpen futtathatónak:</p>
+            <pre><code>$ echo &quot;| \x.x&quot; | mvn exec:java
+OK: A -&gt; A</code></pre>
+            <p>Feltételezhetjük, hogy a tesztelésnél a JDK 1.7, 1.8 és a Maven 3.1 változata áll rendelkezésre.</p>
+            <h2 id="c">C++</h2>
+            <p>C++ nyelv esetében a beadott megoldásnak tartalmaznia kell egy (GNU <code>make(1)</code> által feldolgozható) <code>Makefile</code> állományt, amelynek alkalmazásával létre kell tudni hozni egy <code>main</code> nevű binárist. Feltételezhetjük, hogy a rendszerre telepített könyvtárak a <code>/usr/include</code>, <code>/usr/local/include</code> (header) és <code>/usr/lib</code>, <code>/usr/local/lib</code> (lib) könyvtárakból érhetőek el. A programnak ezek mentén a következőképpen fordíthatónak kell lennie:</p>
+            <pre><code>$ make</code></pre>
+            <p>valamint a következőképpen futtathatónak:</p>
+            <pre><code>$ echo &quot;| \x.x&quot; | ./main
+OK: A -&gt; A</code></pre>
+            <p>Feltételezhetjük, hogy az ellenőrzésnél a GCC 4.8.4, illetve a Clang 3.4.1, valamint a Flex 2.5.37, a BisonC++ 4.01.00 és a Boost 1.55.0 áll majd rendelkezésre.</p>
+            <h2 id="python">Python</h2>
+            <p>Python nyelv esetében a beadott megoldásnak tartalmaznia kell egy <code>main.py</code> állományt, ebben kell lennie a főprogramnak. A szkriptet tehát a következő módon futtatni kell tudni:</p>
+            <pre><code>$ echo &quot;| \x.x&quot; | python ./main.py
+OK: A -&gt; A</code></pre>
+            <p>Feltételezhetjük, hogy az ellenőrzésnél a Python 2.7.9 áll rendelkezésre.</p>
+            <h2 id="egyéb">Egyéb</h2>
+            <p>Amennyiben olyan eszközt szeretnénk használni a fentebb említett nyelvek esetén, amelyet nem említettünk, kérjük az oktatóktól!</p>
+        </div>
+    </div>
+</body>
+
+</html>
