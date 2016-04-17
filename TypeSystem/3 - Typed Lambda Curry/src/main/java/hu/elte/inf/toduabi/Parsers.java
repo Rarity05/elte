@@ -399,10 +399,11 @@ public class Parsers {
 		
 		lexParser.addItem(new LexItem("->", Type.ARROW));
 		lexParser.addItem(new LexItem(":", Type.COLON));
-		lexParser.addItem(new LexItem("|-", Type.CONTEXT));
+		lexParser.addItem(new LexItem("|", Type.CONTEXT));
 		
-		lexParser.addItem(new LexItem("Bool", Type.TYPE));
-		lexParser.addItem(new LexItem("Nat", Type.TYPE));
+		for (int i = 'A'; i <= 'Z'; i++) {
+			lexParser.addItem(new LexItem(Character.toString(Character.toChars(i)[0]), Type.TYPE));
+		}
 		
 		/**
 		 * Add syntax rules
