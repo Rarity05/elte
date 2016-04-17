@@ -12,13 +12,6 @@ public class TypeCheck {
 		// Syntax parser
 		TypedExpression typedExpression = Parsers.typedExpressionParser.parse(tokens);
 		
-		// Deduct the type
-		IType type = typedExpression.getExpression().deductType(typedExpression.getTypeContext());
-		
-		if (!type.equals(typedExpression.getType())) {
-			throw new TypeCheckException(typedExpression.getExpression().toString());
-		}
-		
 		return typedExpression;
 	}
 

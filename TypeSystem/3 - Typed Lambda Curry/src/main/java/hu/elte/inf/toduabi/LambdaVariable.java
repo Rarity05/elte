@@ -53,13 +53,4 @@ public class LambdaVariable implements ILambdaExpression {
 		HashSet<LambdaVariable> retVal = new HashSet<LambdaVariable>();
 		return retVal;
 	}
-
-	@Override
-	public IType deductType(TypeContext typeContext) throws TypeCheckException {
-		IType retVal = (this.type == null) ? typeContext.getTypeForVariable(this.variable) : this.type;
-		if (retVal == null) {
-			throw new TypeCheckException(this.toString());
-		}
-		return retVal;
-	}
 }

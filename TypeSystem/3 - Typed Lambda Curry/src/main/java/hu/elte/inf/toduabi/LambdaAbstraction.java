@@ -49,18 +49,4 @@ public class LambdaAbstraction implements ILambdaExpression {
 		retVal.add(this.variable);
 		return retVal;
 	}
-
-	@Override
-	public IType deductType(TypeContext typeContext) throws TypeCheckException {
-		//if (typeContext.getVariables().contains(this.variable.getVariable())) {
-		//	return null;
-		//}
-		
-		HashSet<LambdaVariable> typeContextSet = typeContext.getSet();
-		typeContextSet.add(this.variable);
-		IType expressionType;
-		expressionType = this.expression.deductType(new TypeContext(typeContextSet));
-		
-		return new ArrowType(this.variable.getType(), expressionType);
-	}
 }

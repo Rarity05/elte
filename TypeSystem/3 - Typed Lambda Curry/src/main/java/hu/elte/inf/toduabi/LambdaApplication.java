@@ -51,24 +51,4 @@ public class LambdaApplication implements ILambdaExpression {
 		retVal.addAll(this.expressionB.getBoundedVariables());
 		return retVal;
 	}
-
-	@Override
-	public IType deductType(TypeContext typeContext) throws TypeCheckException {
-		IType leftType;
-		IType rightType;
-		
-		leftType = this.expressionA.deductType(typeContext);
-		rightType = this.expressionB.deductType(typeContext);
-			
-		if(!leftType.getClass().equals(ArrowType.class)) {
-			throw new TypeCheckException(this.toString());
-		}
-			
-		ArrowType functionType = (ArrowType) leftType;
-		if (functionType.getLeft().equals(rightType)) {
-			return functionType.getRight();
-		} else {
-			throw new TypeCheckException(this.toString());
-		}
-	}
 }
