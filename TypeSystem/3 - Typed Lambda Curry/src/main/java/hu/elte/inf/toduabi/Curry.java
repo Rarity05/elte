@@ -88,5 +88,24 @@ public class Curry {
 		public String toString() {
 			return this.left.toString() + " = " + this.right.toString();
 		}
+		
+		@Override
+		public int hashCode() {
+			return this.left.hashCode() + this.right.hashCode();
+		}
+		
+		@Override
+		public boolean equals(Object _other) {
+			if (!(_other instanceof Restriction)) {
+				return false;
+			}
+			
+			Restriction other = (Restriction) _other;
+			return this.left.equals(other.getLeft()) && this.right.equals(other.getRight());
+		}
+	}
+
+	public static void reset() {
+		index = 0;		
 	}
 }
