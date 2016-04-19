@@ -18,23 +18,19 @@ public class Parsers {
 	
 	public static class typedExpressionParser {
 		public static TypedExpression parse(ArrayList<LexItem> tokens) throws SyntaxParserException {
-			int contextIndex = tokens.indexOf(new LexItem("|-", Type.CONTEXT));
-			int typeIndex = tokens.lastIndexOf(new LexItem(":", Type.COLON));
+			int contextIndex = tokens.indexOf(new LexItem("|", Type.CONTEXT));
 			
-			if (contextIndex == -1 || typeIndex <= contextIndex) {
+			if (contextIndex == -1) {
 				throw new SyntaxParserException("SyntaxParser: structural error");
 			}
 			
 			ArrayList<LexItem> contextTokens = new ArrayList<LexItem>(tokens.subList(0, contextIndex));
 			TypeContext typeContext = typeContextParser.parse(contextTokens);
 			
-			ArrayList<LexItem> expressionTokens = new ArrayList<LexItem>(tokens.subList(contextIndex+1, typeIndex));
+			ArrayList<LexItem> expressionTokens = new ArrayList<LexItem>(tokens.subList(contextIndex+1, tokens.size()));
 			ILambdaExpression expression = expressionParser.parse(expressionTokens);
 			
-			ArrayList<LexItem> typeTokens = new ArrayList<LexItem>(tokens.subList(typeIndex+1, tokens.size()));
-			IType type = typeParser.parse(typeTokens);
-			
-			return new TypedExpression(typeContext, expression, type);
+			return new TypedExpression(typeContext, expression, null);
 		}
 	}
 	
@@ -156,7 +152,7 @@ public class Parsers {
 					expressions.push(new LambdaVariable(prefixList.get(0).getToken().toCharArray()[0], null));
 					stack.push((T) new LexItem("R", Type.RVARIABLE));
 					
-					return new ReturnWrapper(ReturnType.RETURN, 2);
+					return new ReturnWrapper(ReturnType.RETURN, 1);
 				} else {
 					expressions.push(new LambdaVariable(prefixList.get(0).getToken().toCharArray()[0], null));
 					stack.push((T) new LexItem("R", Type.EXPRESSION));
