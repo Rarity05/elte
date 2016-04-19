@@ -1,5 +1,7 @@
 package hu.elte.inf.toduabi;
 
+import hu.elte.inf.toduabi.Curry.Substitution;
+
 public class ArrowType implements IType {
 
 	private IType left;
@@ -37,5 +39,15 @@ public class ArrowType implements IType {
     public String toString() {
     	return "(" + this.left.toString() + " -> " + this.right.toString() + ")";
     }
+
+	@Override
+	public boolean contains(IType type) {
+		return this.left.contains(type) || this.right.contains(type);
+	}
+
+	@Override
+	public IType substitue(Substitution subs) {
+		return new ArrowType(this.left.substitue(subs), this.right.substitue(subs));
+	}
 
 }

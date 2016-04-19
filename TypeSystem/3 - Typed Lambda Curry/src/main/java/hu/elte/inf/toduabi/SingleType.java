@@ -1,5 +1,7 @@
 package hu.elte.inf.toduabi;
 
+import hu.elte.inf.toduabi.Curry.Substitution;
+
 public class SingleType implements IType {
 	
 	private String type;
@@ -35,5 +37,19 @@ public class SingleType implements IType {
     public String toString() {
     	return this.type;
     }
+
+	@Override
+	public boolean contains(IType type) {
+		return this.equals(type);
+	}
+
+	@Override
+	public IType substitue(Substitution subs) {
+		if (this.equals(subs.subs())) {
+			return subs.with();
+		}
+		return this;
+		
+	}
 
 }
