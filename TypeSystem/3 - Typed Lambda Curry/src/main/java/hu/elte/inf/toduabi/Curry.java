@@ -3,6 +3,7 @@ package hu.elte.inf.toduabi;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Stack;
 
 public class Curry {
 	private static ArrayList<String> variables = new ArrayList<String>();
@@ -13,10 +14,32 @@ public class Curry {
 		}
 	}
 	public static String getTypeVariable() {
-		try {
-			return Curry.variables.get(index++);
-		} catch (Exception e) {
-			throw new RuntimeException("Out of variables");
+		return getTypeVariable(null);
+	}
+	public static String getTypeVariable(TypeContext context) {
+		if (context == null) {
+			try {
+				return Curry.variables.get(index++);
+			} catch (Exception e) {
+				throw new RuntimeException("Out of variables");
+			}
+		} else {
+			ArrayList<LambdaVariable> setVariables = new ArrayList<LambdaVariable>();
+			context.getSet().stream().forEach(item -> setVariables.add(item));
+			
+			boolean l = false;
+			while (!l) {
+				boolean l2 = false;
+				for (LambdaVariable v : setVariables) {
+					if (v.getType().equals(new SingleType(variables.get(index)))) {
+						l2 = true;
+					}
+				}
+				if (l2) index++;
+				else l = true;
+			}
+			
+			return variables.get(index++);
 		}
 	}
 	public static List<Restriction> T(TypeContext context, ILambdaExpression expression, IType type) {
@@ -33,8 +56,8 @@ public class Curry {
 			return retVal;
 		} else if (clazz.equals(LambdaAbstraction.class)) {
 			LambdaAbstraction abstraction = (LambdaAbstraction) expression;
-			IType left = new SingleType(getTypeVariable());
-			IType right = new SingleType(getTypeVariable());
+			IType left = new SingleType(getTypeVariable(context));
+			IType right = new SingleType(getTypeVariable(context));
 			
 			HashSet<LambdaVariable> nContextSet = context.getSet();
 			LambdaVariable nVariable = new LambdaVariable(abstraction.getVariable().getVariable(), left);
@@ -50,7 +73,7 @@ public class Curry {
 		} else if (clazz.equals(LambdaApplication.class)) {
 			LambdaApplication application = (LambdaApplication) expression;
 			
-			IType next = new SingleType(getTypeVariable());
+			IType next = new SingleType(getTypeVariable(context));
 			
 			List<Restriction> subResA = T(context, application.getExpressionA(), new ArrowType(next, type));
 			List<Restriction> subResB = T(context, application.getExpressionB(), next);
@@ -64,8 +87,93 @@ public class Curry {
 		}
 	}
 	
-	public static IType S(List<Restriction> restrictions) {
-		return null;
+	public static IType S(List<Restriction> restrictions, List<Substitution> substitutions) {
+		Stack<Restriction> rStack = new Stack<Restriction>();
+		rStack.addAll(restrictions);
+		
+		if (rStack.isEmpty()) {
+			IType retVal = new SingleType("A");
+			for (Substitution subs : substitutions) {
+				retVal = retVal.substitue(subs);
+			}
+			return retVal;
+		}
+		
+		Restriction r = rStack.pop();
+		if (r.getLeft().getClass().equals(SingleType.class) && r.getLeft().equals(r.getRight())) {
+			return S(new ArrayList<Restriction>(rStack), substitutions);
+		} else if (r.getLeft().getClass().equals(SingleType.class)) {
+			if (r.getRight().contains(r.getLeft())) {
+				throw new RuntimeException("recursion");
+			}
+			Substitution subs = new Substitution((SingleType)r.getLeft(), r.getRight());
+			for (int i=0; i<rStack.size(); i++) {
+				rStack.get(i).substitute(subs);
+			}
+			ArrayList<Substitution> nSubs = new ArrayList<Substitution>();
+			nSubs.addAll(substitutions);
+			nSubs.add(subs);
+			
+			return S(new ArrayList<Restriction>(rStack), nSubs);
+		} else if (r.getRight().getClass().equals(SingleType.class)) {
+			if (r.getLeft().contains(r.getRight())) {
+				throw new RuntimeException("recursion");
+			}
+			Substitution subs = new Substitution((SingleType)r.getRight(), r.getLeft());
+			for (int i=0; i<rStack.size(); i++) {
+				rStack.get(i).substitute(subs);
+			}
+			ArrayList<Substitution> nSubs = new ArrayList<Substitution>();
+			nSubs.addAll(substitutions);
+			nSubs.add(subs);
+			
+			return S(new ArrayList<Restriction>(rStack), nSubs);
+		} else {
+			// T1 -> T2 = T3 -> T4
+			ArrayList<Restriction> nRes = new ArrayList<Restriction>(rStack);
+			ArrowType a = (ArrowType) r.getLeft();
+			ArrowType b = (ArrowType) r.getRight();
+			nRes.add(new Restriction(a.getLeft(), b.getLeft()));
+			nRes.add(new Restriction(a.getRight(), b.getRight()));
+			
+			return S(nRes, substitutions);
+		}
+		
+	}
+	
+	public static class Substitution {
+
+		private SingleType _subs;
+		private IType _with;
+		
+		public Substitution(SingleType subs, IType with) {
+			_subs = subs;
+			_with = with;
+		}
+
+		public Object subs() {
+			return _subs;
+		}
+
+		public IType with() {
+			return _with;
+		}
+		
+		@Override
+		public int hashCode() {
+			return this._subs.hashCode() + this.with().hashCode();
+		}
+		
+		@Override
+		public boolean equals(Object _other) {
+			if (!(_other instanceof Substitution)) {
+				return false;
+			}
+			
+			Substitution other = (Substitution) _other;
+			return this._subs.equals(other.subs()) && this._with.equals(other.with());
+		}
+		
 	}
 	
 	public static class Restriction {
@@ -76,6 +184,11 @@ public class Curry {
 			this.right = right;
 		}
 		
+		public void substitute(Substitution subs) {
+			this.left = this.left.substitue(subs);
+			this.right = this.right.substitue(subs);
+		}
+
 		public IType getLeft() {
 			return this.left;
 		}
