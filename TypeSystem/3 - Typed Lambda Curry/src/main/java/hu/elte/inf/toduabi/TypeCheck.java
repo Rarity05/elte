@@ -13,7 +13,7 @@ public class TypeCheck {
 		// Syntax parser
 		TypedExpression typedExpression = Parsers.typedExpressionParser.parse(tokens);
 		Curry.reset();
-		List<Curry.Restriction> restrictions = Curry.T(typedExpression.getTypeContext(), typedExpression.getExpression(), new SingleType(Curry.getTypeVariable()));
+		List<Curry.Restriction> restrictions = Curry.T(typedExpression.getTypeContext(), typedExpression.getExpression(), new SingleType("Z"));
 		
 		return Curry.S(restrictions, new ArrayList<Curry.Substitution>());
 	}

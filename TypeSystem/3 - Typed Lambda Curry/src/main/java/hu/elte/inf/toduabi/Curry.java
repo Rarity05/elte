@@ -92,7 +92,7 @@ public class Curry {
 		rStack.addAll(restrictions);
 		
 		if (rStack.isEmpty()) {
-			IType retVal = new SingleType("A");
+			IType retVal = new SingleType("Z");
 			for (Substitution subs : substitutions) {
 				retVal = retVal.substitue(subs);
 			}
