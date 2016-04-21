@@ -50,7 +50,20 @@ acceptFork socket action = do
   forkIO (action connection)
   acceptFork socket action
 
---handleClient :: MVar (Int, Int) -> Handle -> IO ()
+handleClient :: MVar (Int, Int) -> Handle -> IO ()
+handleClient mPoz connection = do
+  request <- hGetLines connection
+  poz <- takeMVar mPoz
+  let direction = requestedResource request
+  if isJust direction
+    then do
+      let (x,y) = handleRequest (fromJust direction) poz
+      putMVar mPoz (x,y)
+      hPutStr connection $ Text.unpack $ response $ drawState (x,y)
+    else hPutStr connection $ Text.unpack $ response $ drawState (0,0)
+  hFlush connection
+  hClose connection
+
 requestedResource :: [Text] -> Maybe Text
 requestedResource [] = Nothing
 requestedResource (x:xs) = do
