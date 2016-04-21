@@ -43,3 +43,10 @@ response str = Text.unlines
   , ""
   , str
   ]
+
+--acceptFork :: Socket -> (Handle -> IO ()) -> IO ()
+--handleClient :: MVar (Int, Int) -> Handle -> IO ()
+--requestedResource :: [Text] -> Maybe Text
+--handleRequest :: Text -> (Int, Int) -> (Int, Int)
+--drawState :: (Int, Int) -> Text
+--main :: IO ()
