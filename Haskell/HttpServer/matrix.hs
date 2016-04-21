@@ -1,10 +1,22 @@
+import Data.Sequence (Seq, (|>))
+import qualified Data.Sequence as Seq
+
 data Matrix = M
   { mDat :: Seq Integer
   , mSize :: Int
   , mIx :: (Int, Int) -> Maybe Int
   }
 
---newMatrix :: Int -> Matrix
+newMatrix :: Int -> Matrix
+newMatrix size = M {
+  mDat = Seq.replicate (size * size) 0,
+  mSize = size,
+  mIx = \(x,y) -> do
+    if x < 1 || y < 1 || x > size || y > size
+      then Nothing
+      else Just $ ((x-1) * size + y) - 1
+}
+
 --setMatrix :: (Int, Int) -> Integer -> Matrix -> Matrix
 --getMatrix :: (Int, Int) -> Matrix -> Maybe Integer
 --addMatrix :: Matrix -> Matrix -> Maybe Matrix
@@ -12,7 +24,6 @@ data Matrix = M
 
 -- TESTS
 
-{-
 test_newMatrix :: [Bool]
 test_newMatrix =
   let m3 = newMatrix 3 in
@@ -23,7 +34,7 @@ test_newMatrix =
   , mIx m3 (2, 3) == Just 5
   , mIx m3 (3, 2) == Just 7
   ]
--}
+
 {-
 test_setMatrix :: [Bool]
 test_setMatrix =
