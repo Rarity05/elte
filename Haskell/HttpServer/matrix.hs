@@ -1,3 +1,4 @@
+import Data.Maybe
 import Data.Sequence (Seq, (|>))
 import qualified Data.Sequence as Seq
 
@@ -17,7 +18,13 @@ newMatrix size = M {
       else Just $ ((x-1) * size + y) - 1
 }
 
---setMatrix :: (Int, Int) -> Integer -> Matrix -> Matrix
+setMatrix :: (Int, Int) -> Integer -> Matrix -> Matrix
+setMatrix (x, y) value matrix@(M mDat _ mIx) = do
+  let poz = mIx (x,y)
+  if isJust poz
+    then matrix { mDat = Seq.update (fromJust poz) value mDat }
+    else matrix
+
 --getMatrix :: (Int, Int) -> Matrix -> Maybe Integer
 --addMatrix :: Matrix -> Matrix -> Maybe Matrix
 --mulMatrix :: Matrix -> Matrix -> Maybe Matrix
@@ -35,7 +42,6 @@ test_newMatrix =
   , mIx m3 (3, 2) == Just 7
   ]
 
-{-
 test_setMatrix :: [Bool]
 test_setMatrix =
   let m2 = newMatrix 2 in
@@ -43,7 +49,7 @@ test_setMatrix =
   , mDat (setMatrix (1, 1) 1 m2) == Seq.fromList [1, 0, 0, 0]
   , mDat (setMatrix (1, 2) 1 m2) == Seq.fromList [0, 1, 0, 0]
   ]
--}
+
 {-
 test_getMatrix :: [Bool]
 test_getMatrix =
