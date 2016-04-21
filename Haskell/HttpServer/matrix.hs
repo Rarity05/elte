@@ -25,7 +25,13 @@ setMatrix (x, y) value matrix@(M mDat _ mIx) = do
     then matrix { mDat = Seq.update (fromJust poz) value mDat }
     else matrix
 
---getMatrix :: (Int, Int) -> Matrix -> Maybe Integer
+getMatrix :: (Int, Int) -> Matrix -> Maybe Integer
+getMatrix (x, y) matrix@(M mDat _ mIx) = do
+  let poz = mIx (x,y)
+  if (isJust poz)
+    then Just $ Seq.index mDat (fromJust poz)
+    else Nothing
+
 --addMatrix :: Matrix -> Matrix -> Maybe Matrix
 --mulMatrix :: Matrix -> Matrix -> Maybe Matrix
 
@@ -50,7 +56,6 @@ test_setMatrix =
   , mDat (setMatrix (1, 2) 1 m2) == Seq.fromList [0, 1, 0, 0]
   ]
 
-{-
 test_getMatrix :: [Bool]
 test_getMatrix =
   let m2 = setMatrix (1, 2) 1 $ newMatrix 2 in
@@ -58,7 +63,7 @@ test_getMatrix =
   , getMatrix (1, 1) m2 == Just 0
   , getMatrix (1, 2) m2 == Just 1
   ]
--}
+
 {-
 test_addMatrix :: [Bool]
 test_addMatrix =
