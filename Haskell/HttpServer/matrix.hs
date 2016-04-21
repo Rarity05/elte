@@ -1,3 +1,4 @@
+import Control.Parallel.Strategies
 import Data.Maybe
 import Data.Sequence (Seq, (|>))
 import qualified Data.Sequence as Seq
@@ -32,7 +33,14 @@ getMatrix (x, y) matrix@(M mDat _ mIx) = do
     then Just $ Seq.index mDat (fromJust poz)
     else Nothing
 
---addMatrix :: Matrix -> Matrix -> Maybe Matrix
+addMatrix :: Matrix -> Matrix -> Maybe Matrix
+addMatrix (M a_mDat a_mSize _) (M b_mDat b_mSize _) = do
+  if (a_mSize /= b_mSize)
+    then Nothing
+    else do
+      let matrix = fmap (\(x,y) -> x+y) (Seq.zip a_mDat b_mDat) `using` parTraversable rseq
+      Just $ (newMatrix a_mSize) { mDat = matrix }
+
 --mulMatrix :: Matrix -> Matrix -> Maybe Matrix
 
 -- TESTS
@@ -64,7 +72,6 @@ test_getMatrix =
   , getMatrix (1, 2) m2 == Just 1
   ]
 
-{-
 test_addMatrix :: [Bool]
 test_addMatrix =
   let ma = newMatrix 3
@@ -73,7 +80,7 @@ test_addMatrix =
   in  [ isNothing $ addMatrix ma mb
       , (mDat <$> addMatrix mb mc) == Just (Seq.fromList [2, 1, 1, 0])
       ]
--}
+
 {-
 test_mulMatrix :: [Bool]
 test_mulMatrix =
