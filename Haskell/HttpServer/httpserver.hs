@@ -44,7 +44,12 @@ response str = Text.unlines
   , str
   ]
 
---acceptFork :: Socket -> (Handle -> IO ()) -> IO ()
+acceptFork :: Socket -> (Handle -> IO ()) -> IO ()
+acceptFork socket action = do
+  connection <- acceptHandle socket
+  forkIO (action connection)
+  acceptFork socket action
+
 --handleClient :: MVar (Int, Int) -> Handle -> IO ()
 --requestedResource :: [Text] -> Maybe Text
 --handleRequest :: Text -> (Int, Int) -> (Int, Int)
