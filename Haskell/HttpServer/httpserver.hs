@@ -59,7 +59,13 @@ requestedResource (x:xs) = do
     then Nothing
     else Text.stripPrefix (Text.pack "/") (request !! 1)
 
---handleRequest :: Text -> (Int, Int) -> (Int, Int)
+handleRequest :: Text -> (Int, Int) -> (Int, Int)
+handleRequest direction (x, y) = case direction of
+  "n" -> (x, y-1)
+  "s" -> (x, y+1)
+  "e" -> (x+1, y)
+  "w" -> (x-1, y)
+  _   -> (x,   y)
 --drawState :: (Int, Int) -> Text
 --main :: IO ()
 
@@ -76,7 +82,7 @@ test_requestedResource =
   , requestedResource ["GET /alma.html HTTP/1.1", "Korte: very"] == Just "alma.html"
   ]
 
-{-
+
 test_handleRequest :: [Bool]
 test_handleRequest =
   [ handleRequest "n" (2,3) == (2,2)
@@ -85,7 +91,7 @@ test_handleRequest =
   , handleRequest "w" (2,3) == (1,3)
   , handleRequest "foobar" (2,3) == (2,3)
   ]
--}
+
 {-
 test_drawState :: [Bool]
 test_drawState =
