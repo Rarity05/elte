@@ -66,7 +66,17 @@ handleRequest direction (x, y) = case direction of
   "e" -> (x+1, y)
   "w" -> (x-1, y)
   _   -> (x,   y)
---drawState :: (Int, Int) -> Text
+
+drawState :: (Int, Int) -> Text
+drawState (x, y) = do
+  let empty = map (\x -> if x == ' ' then '\n' else '.') $ unwords $ replicate 10 $ replicate 10 '.'
+  let retval = empty ++ "\n" ++ "(" ++ show x ++ "," ++ show y ++ ")"
+  if (x < 1 || y < 1 || x > 10 || y > 10)
+    then Text.pack retval
+    else Text.pack $ replace ((y-1)*11+x) 'X' retval where
+      replace x char zs = before ++ (char : tail after) where
+        (before, after) = splitAt (x-1) zs
+
 --main :: IO ()
 
 -- TESTS
@@ -82,7 +92,6 @@ test_requestedResource =
   , requestedResource ["GET /alma.html HTTP/1.1", "Korte: very"] == Just "alma.html"
   ]
 
-
 test_handleRequest :: [Bool]
 test_handleRequest =
   [ handleRequest "n" (2,3) == (2,2)
@@ -92,7 +101,6 @@ test_handleRequest =
   , handleRequest "foobar" (2,3) == (2,3)
   ]
 
-{-
 test_drawState :: [Bool]
 test_drawState =
   [ drawState (-1, -1) ==
@@ -120,4 +128,3 @@ test_drawState =
     \..........\n\
     \(1,5)"
   ]
--}
