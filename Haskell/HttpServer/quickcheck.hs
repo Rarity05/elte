@@ -22,5 +22,15 @@ prop_removeNegative x = (foldl (*) 1 $ map (`div` 10) (removeNegative x)) >= 0
 prop_drop2 :: [a] -> Bool
 prop_drop2 x = ((length x) - (length (drop2 x))) <= 2
 
---prop_left :: ZippList a -> Bool
---instance Arbitrary a => Arbitrary (ZippList a) where
+prop_left :: ZippList a -> Bool
+prop_left list@(ZPL (oLeft, oRight)) = do
+  let (ZPL (nLeft, nRight)) = left list
+  if ((length oLeft == 0) || ((length oLeft) - (length nLeft) <= 1) && ((length oRight) == ((length nRight)-1)))
+    then True
+    else False
+
+instance Arbitrary a => Arbitrary (ZippList a) where
+  arbitrary = do
+    left <- arbitrary
+    right <- arbitrary
+    return $ ZPL (left, right)
