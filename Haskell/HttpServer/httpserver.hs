@@ -51,13 +51,20 @@ acceptFork socket action = do
   acceptFork socket action
 
 --handleClient :: MVar (Int, Int) -> Handle -> IO ()
---requestedResource :: [Text] -> Maybe Text
+requestedResource :: [Text] -> Maybe Text
+requestedResource [] = Nothing
+requestedResource (x:xs) = do
+  let request = Text.words x
+  if length request < 3 || Text.toUpper (request !! 0) /= Text.pack "GET" || head (Text.unpack (request !! 1)) /= '/'
+    then Nothing
+    else Text.stripPrefix (Text.pack "/") (request !! 1)
+
 --handleRequest :: Text -> (Int, Int) -> (Int, Int)
 --drawState :: (Int, Int) -> Text
 --main :: IO ()
 
 -- TESTS
-{-
+
 test_requestedResource =
   [ requestedResource [""]                      == Nothing
   , requestedResource ["ALMA"]                  == Nothing
@@ -68,7 +75,7 @@ test_requestedResource =
   , requestedResource ["get /index.html alma"]  == Just "index.html"
   , requestedResource ["GET /alma.html HTTP/1.1", "Korte: very"] == Just "alma.html"
   ]
--}
+
 {-
 test_handleRequest :: [Bool]
 test_handleRequest =
