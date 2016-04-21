@@ -16,7 +16,9 @@ left :: ZippList a -> ZippList a
 left (ZPL (x : xs, ys)) = ZPL (xs, x : ys)
 left zl = zl
 
---prop_removeNegative :: [Int] -> Bool
+prop_removeNegative :: [Int] -> Bool
+prop_removeNegative x = (foldl (*) 1 $ map (`div` 10) (removeNegative x)) >= 0
+
 --prop_drop2 :: [a] -> Bool
 --prop_left :: ZippList a -> Bool
 --instance Arbitrary a => Arbitrary (ZippList a) where
