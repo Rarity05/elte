@@ -90,7 +90,14 @@ drawState (x, y) = do
       replace x char zs = before ++ (char : tail after) where
         (before, after) = splitAt (x-1) zs
 
---main :: IO ()
+main :: IO ()
+main = do
+  socket <- listenOn (PortNumber 8000)
+  poz <- newMVar (5,5)
+  threadID <- forkIO $ acceptFork socket (handleClient poz)
+  input <- getLine
+  killThread threadID
+  sClose socket
 
 -- TESTS
 
