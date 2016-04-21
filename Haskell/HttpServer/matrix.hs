@@ -41,7 +41,41 @@ addMatrix (M a_mDat a_mSize _) (M b_mDat b_mSize _) = do
       let matrix = fmap (\(x,y) -> x+y) (Seq.zip a_mDat b_mDat) `using` parTraversable rseq
       Just $ (newMatrix a_mSize) { mDat = matrix }
 
---mulMatrix :: Matrix -> Matrix -> Maybe Matrix
+mulMatrix :: Matrix -> Matrix -> Maybe Matrix
+mulMatrix mA@(M a_mDat a_mSize _) mB@(M b_mDat b_mSize _)
+  | a_mSize /= b_mSize = Nothing
+  | otherwise = do
+    let rows = getRows mA
+    let columns = getColumns mB
+    let paired = pairSeq rows columns
+    let matrix = fmap (\x -> foldl (+) 0 (fmap (\(a, b) -> a*b) x)) paired `using` parTraversable rseq
+    Just $ (newMatrix a_mSize) { mDat = Seq.fromList matrix }
+
+pairSeq :: [Seq Integer] -> [Seq Integer] -> [Seq (Integer, Integer)]
+pairSeq rows columns = acc rows columns [] where
+  acc :: [Seq Integer] -> [Seq Integer] -> [Seq (Integer, Integer)] -> [Seq (Integer, Integer)]
+  acc [] _ v = v
+  acc (x:xs) ys v = do
+    let rX = fmap (\i -> Seq.zip x i) ys
+    acc xs ys (v ++ rX)
+
+getRows :: Matrix -> [Seq Integer]
+getRows (M mDat mSize mIx) = acc 1 [] where
+  acc :: Int -> [Seq Integer] -> [Seq Integer]
+  acc i v
+    | i == (mSize + 1) = v
+    | otherwise = acc (i+1) (v ++ [Seq.take mSize (Seq.drop ((i-1)*mSize) mDat)])
+
+getColumns :: Matrix -> [Seq Integer]
+getColumns (M mDat mSize mIx) = acc 1 [] where
+  acc :: Int -> [Seq Integer] -> [Seq Integer]
+  acc i v
+    | i == (mSize + 1) = v
+    | otherwise = acc (i+1) (v ++ [(Seq.fromList (accCol i 1 []))])
+  accCol :: Int -> Int -> [Integer] -> [Integer]
+  accCol column row vv
+    | row == (mSize + 1) =  vv
+    | otherwise = accCol column (row+1) (vv ++ [Seq.index mDat ((((row-1)*mSize)+column)-1)])
 
 -- TESTS
 
@@ -81,7 +115,6 @@ test_addMatrix =
       , (mDat <$> addMatrix mb mc) == Just (Seq.fromList [2, 1, 1, 0])
       ]
 
-{-
 test_mulMatrix :: [Bool]
 test_mulMatrix =
   let ma = newMatrix 3
@@ -91,4 +124,3 @@ test_mulMatrix =
       , (mDat <$> mulMatrix mb mc) == Just (Seq.fromList [1, 0, 8, 6])
       , (mDat <$> mulMatrix mc mb) == Just (Seq.fromList [1, 0, 4, 6])
       ]
--}
