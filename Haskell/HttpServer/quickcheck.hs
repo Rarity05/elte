@@ -23,11 +23,12 @@ prop_drop2 :: [a] -> Bool
 prop_drop2 x = ((length x) - (length (drop2 x))) <= 2
 
 prop_left :: ZippList a -> Bool
+prop_left list@(ZPL ([], oRight)) = do
+  let (ZPL (nLeft, nRight)) = left list
+  length nLeft == 0 && length nRight == length oRight
 prop_left list@(ZPL (oLeft, oRight)) = do
   let (ZPL (nLeft, nRight)) = left list
-  if ((length oLeft == 0) || ((length oLeft) - (length nLeft) <= 1) && ((length oRight) == ((length nRight)-1)))
-    then True
-    else False
+  length oLeft - length nLeft == 1 && length nRight - length oRight == 1
 
 instance Arbitrary a => Arbitrary (ZippList a) where
   arbitrary = do
