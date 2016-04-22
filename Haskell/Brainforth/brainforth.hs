@@ -113,33 +113,35 @@ step = do
     newState :: BFSequence -> BFState -> BFState
     newState sequence state@(S sCallStk@((idx, _):xs) sMem sIn sOut)
       | V.length sequence == idx = state { sCallStk = xs }
-      | otherwise = case sequence V.! idx of
+      | otherwise = do
+        let modCallStk = modifyCallStk sCallStk
+        case sequence V.! idx of
           Inc -> state {
-            sCallStk = modifyCallStk sCallStk,
+            sCallStk = modCallStk,
             sMem = incVal sMem }
           Dec -> state {
-            sCallStk = modifyCallStk sCallStk,
+            sCallStk = modCallStk,
             sMem = decVal sMem }
           MemLeft -> state {
-            sCallStk = modifyCallStk sCallStk,
+            sCallStk = modCallStk,
             sMem = memLeft sMem }
           MemRight -> state {
-            sCallStk = modifyCallStk sCallStk,
+            sCallStk = modCallStk,
             sMem = memRight sMem }
           BrktOpen ->
             if isNull sMem then
               state { sCallStk = modifyCallStkTo sCallStk ((matchingBracket sequence idx) + 1) }
             else
-              state { sCallStk = modifyCallStk sCallStk }
+              state { sCallStk = modCallStk }
           BrktClose -> state { sCallStk = modifyCallStkTo sCallStk (matchingBracket sequence idx) }
           In -> state {
-            sCallStk = modifyCallStk sCallStk,
+            sCallStk = modCallStk,
             sMem = putVal sMem (head sIn),
             sIn = tail sIn }
           Out -> state {
-            sCallStk = modifyCallStk sCallStk,
+            sCallStk = modCallStk,
             sOut = [getVal sMem] ++ sOut }
-          SeqId x -> state { sCallStk = [(0, x)] ++ modifyCallStk sCallStk }
+          SeqId x -> state { sCallStk = [(0, x)] ++ modCallStk }
     modifyCallStk :: [(Int, Char)] -> [(Int, Char)]
     modifyCallStk (x:xs) = [(fst x + 1, snd x)] ++ xs
     modifyCallStkTo :: [(Int, Char)] -> Int -> [(Int, Char)]
