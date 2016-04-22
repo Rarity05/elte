@@ -17,7 +17,7 @@ left (ZPL (x : xs, ys)) = ZPL (xs, x : ys)
 left zl = zl
 
 prop_removeNegative :: [Int] -> Bool
-prop_removeNegative x = (foldl (*) 1 $ map (`div` 10) (removeNegative x)) >= 0
+prop_removeNegative x = foldl (&&) True $ map (>=0) $ removeNegative x
 
 prop_drop2 :: [a] -> Bool
 prop_drop2 x = ((length x) - (length (drop2 x))) <= 2
