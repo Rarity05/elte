@@ -35,3 +35,12 @@ instance Arbitrary a => Arbitrary (ZippList a) where
     left <- arbitrary
     right <- arbitrary
     return $ ZPL (left, right)
+
+-- TESTS
+
+test_arbitrary :: IO Bool
+test_arbitrary = do
+  s <- sample' (arbitrary :: Gen (ZippList Int))
+  let hasNull = any (\(ZPL (xs, ys)) -> length xs == 0 && length ys == 0) s
+      hasAsym = any (\(ZPL (xs, ys)) -> xs /= ys) s
+  return $ hasNull &&  hasAsym
