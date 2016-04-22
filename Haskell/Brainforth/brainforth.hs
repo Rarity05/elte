@@ -64,20 +64,19 @@ parseProgram input = M.fromList (map listToTuple (wordsWhen (==';') input)) wher
       where (w, s'') = break p s'
   listToTuple :: [Char] -> (Char, BFSequence)
   listToTuple (x:xs)
-    | x == ':' = (head xs, V.fromList (charToSymbol (tail xs)))
-    | otherwise = (sq0, V.fromList (charToSymbol (x:xs)))
-  charToSymbol :: [Char] -> [BFSymbol]
-  charToSymbol [] = []
-  charToSymbol (x:xs)
-    | x == '+' = [Inc] ++ charToSymbol xs
-    | x == '-' = [Dec] ++ charToSymbol xs
-    | x == '<' = [MemLeft] ++ charToSymbol xs
-    | x == '>' = [MemRight] ++ charToSymbol xs
-    | x == '[' = [BrktOpen] ++ charToSymbol xs
-    | x == ']' = [BrktClose] ++ charToSymbol xs
-    | x == ',' = [In] ++ charToSymbol xs
-    | x == '.' = [Out] ++ charToSymbol xs
-    | otherwise = [SeqId x] ++ charToSymbol xs
+    | x == ':' = (head xs, V.fromList (map charToSymbol (tail xs)))
+    | otherwise = (sq0, V.fromList (map charToSymbol (x:xs)))
+  charToSymbol :: Char -> BFSymbol
+  charToSymbol x = case x of
+    '+' -> Inc
+    '-' -> Dec
+    '<' -> MemLeft
+    '>' -> MemRight
+    '[' -> BrktOpen
+    ']' -> BrktClose
+    ',' -> In
+    '.' -> Out
+    _   -> SeqId x
 
 matchingBracket :: BFSequence -> Int -> Int
 matchingBracket sequance index = search sequance index where
