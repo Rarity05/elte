@@ -106,7 +106,6 @@ step = do
   state <- get
   seq <- getCurrentSequence env state
   put $ newState seq state
-  return ()
   where
     getCurrentSequence :: BFEnv -> BFState -> ReaderT BFEnv (State BFState) BFSequence
     getCurrentSequence env (S ((_,seqId):_) _ _ _) = return $ fromJust $ M.lookup seqId env
